@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate --no-engine",
-    "vercel-build": "prisma generate --no-engine && next build",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && next build",
     "test": "jest --ci --coverage --passWithNoTests",
     "test:coverage": "jest --coverage",
     "seed": "ts-node prisma/seed.ts"
@@ -29,7 +29,7 @@
     "@prisma/client": "^6.15.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^16.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.19.11",
     "@types/react": "^19",
