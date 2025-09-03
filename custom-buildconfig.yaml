@@ -1,0 +1,24 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ceh-time-table-custom
+  namespace: vault
+spec:
+  runPolicy: Serial
+  source:
+    type: Git
+    git:
+      uri: https://github.com/Lameckwh/ceh-time-table.git
+      ref: main
+  strategy:
+    customStrategy:
+      from:
+        kind: ImageStreamTag
+        name: 'nodejs:latest'
+      env:
+        - name: BUILD_SCRIPT
+          value: /opt/app-root/src/build.sh
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ceh-time-table:latest

@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Facilitator {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  createdAt   DateTime @default(now())
+  timetable   TimetableEntry[]
+}
+
+model TimetableEntry {
+  id            Int      @id @default(autoincrement())
+  week          String
+  title         String
+  details       String[]
+  facilitator   Facilitator? @relation(fields: [facilitatorId], references: [id])
+  facilitatorId Int?
+  createdAt     DateTime @default(now())
+}
+
+model Setting {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}

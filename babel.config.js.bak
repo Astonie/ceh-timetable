@@ -1,0 +1,2 @@
+// This file was renamed to allow Next.js to use SWC and next/font features.
+// If you need to restore your custom Babel config, rename this file back to babel.config.js.

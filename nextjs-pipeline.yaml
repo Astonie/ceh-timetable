@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: nextjs-pipeline
+  namespace: vault
+spec:
+  params:
+    - name: GIT_REPO_URL
+      description: The URL of the Git repository to clone
+      type: string
+      default: https://github.com/Lameckwh/ceh-time-table.git
+    - name: GIT_REVISION
+      description: The branch or tag to checkout
+      type: string
+      default: main
+    - name: IMAGE_NAME
+      description: The name of the Docker image to build
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/vault/ceh-time-table:latest
+  workspaces:
+    - name: shared-workspace
+      description: Shared workspace for the tasks
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+        kind: TaskCluster
+      params:
+        - name: url
+          value: "$(params.GIT_REPO_URL)"
+        - name: revision
+          value: "$(params.GIT_REVISION)"
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+    - name: lint-and-test
+      taskRef:
+        name: nextjs-lint-test
+        kind: Task
+      runAfter:
+        name: fetch-repository
