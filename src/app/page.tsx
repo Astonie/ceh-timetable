@@ -146,6 +146,7 @@ export default function Home() {
   useEffect(() => {
     // Recalculate meeting time when meeting time settings change
     setNextMeetingDate(getNextMeetingDateTime());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingTime]);
 
   useEffect(() => {

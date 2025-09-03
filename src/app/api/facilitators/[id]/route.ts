@@ -4,14 +4,15 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // PATCH /api/facilitators/[id]
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { name } = await req.json();
-    const id = Number(params.id);
-    if (!id || !name) {
+    const { id } = await params;
+    const facilitatorId = Number(id);
+    if (!facilitatorId || !name) {
       return NextResponse.json({ error: "ID and name are required" }, { status: 400 });
     }
-    const facilitator = await prisma.facilitator.update({ where: { id }, data: { name } });
+    const facilitator = await prisma.facilitator.update({ where: { id: facilitatorId }, data: { name } });
     return NextResponse.json(facilitator, { status: 200 });
   } catch {
     return NextResponse.json({ error: "Failed to update facilitator" }, { status: 500 });
@@ -19,13 +20,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 // DELETE /api/facilitators/[id]
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number(params.id);
-    if (!id) {
+    const { id } = await params;
+    const facilitatorId = Number(id);
+    if (!facilitatorId) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
-    await prisma.facilitator.delete({ where: { id } });
+    await prisma.facilitator.delete({ where: { id: facilitatorId } });
     return NextResponse.json({ success: true }, { status: 200 });
   } catch {
     return NextResponse.json({ error: "Failed to delete facilitator" }, { status: 500 });

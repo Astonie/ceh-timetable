@@ -3,15 +3,16 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number(params.id);
+    const { id } = await params;
+    const entryId = Number(id);
     const { week, title, details, facilitatorId } = await req.json();
     if (!week || !title || !details) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
     const entry = await prisma.timetableEntry.update({
-      where: { id },
+      where: { id: entryId },
       data: { 
         week, 
         title, 
@@ -29,10 +30,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number(params.id);
-    await prisma.timetableEntry.delete({ where: { id } });
+    const { id } = await params;
+    const entryId = Number(id);
+    await prisma.timetableEntry.delete({ where: { id: entryId } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/timetable/[id] error:", error);
