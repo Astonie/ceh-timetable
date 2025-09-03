@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Facilitator {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  createdAt   DateTime @default(now())
-  timetable   TimetableEntry[]
+  id        Int              @id @default(autoincrement())
+  name      String
+  email     String           @unique
+  createdAt DateTime         @default(now())
+  timetable TimetableEntry[]
 }
 
 model TimetableEntry {
-  id            Int      @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   week          String
   title         String
   details       String[]
-  facilitator   Facilitator? @relation(fields: [facilitatorId], references: [id])
   facilitatorId Int?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime     @default(now())
+  facilitator   Facilitator? @relation(fields: [facilitatorId], references: [id])
 }
 
 model Setting {
