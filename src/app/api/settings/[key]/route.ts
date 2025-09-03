@@ -1,12 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 // GET /api/settings/[key]
-export async function GET(req: Request, { params }: { params: Promise<{ key: string }> }) {
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ key: string }> }
+) {
   try {
-    const { key } = await params;
+    const { key } = await context.params;
     const setting = await prisma.setting.findUnique({ where: { key } });
     if (!setting) {
       return NextResponse.json({ error: "Setting not found" }, { status: 404 });
@@ -19,9 +22,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ key: str
 }
 
 // PATCH /api/settings/[key]
-export async function PATCH(req: Request, { params }: { params: Promise<{ key: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ key: string }> }
+) {
   try {
-    const { key } = await params;
+    const { key } = await context.params;
     const { value, description } = await req.json();
     if (value === undefined) {
       return NextResponse.json({ error: "Value is required" }, { status: 400 });
@@ -40,9 +46,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ key: s
 }
 
 // DELETE /api/settings/[key]
-export async function DELETE(req: Request, { params }: { params: Promise<{ key: string }> }) {
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ key: string }> }
+) {
   try {
-    const { key } = await params;
+    const { key } = await context.params;
     await prisma.setting.delete({ where: { key } });
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

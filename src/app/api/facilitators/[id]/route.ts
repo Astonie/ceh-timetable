@@ -1,13 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 // PATCH /api/facilitators/[id]
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const { name } = await req.json();
-    const { id } = await params;
+    const { id } = await context.params;
     const facilitatorId = Number(id);
     if (!facilitatorId || !name) {
       return NextResponse.json({ error: "ID and name are required" }, { status: 400 });
@@ -20,9 +23,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 // DELETE /api/facilitators/[id]
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const facilitatorId = Number(id);
     if (!facilitatorId) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });

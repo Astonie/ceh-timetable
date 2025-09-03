@@ -3,9 +3,12 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const entryId = Number(id);
     const { week, title, details, facilitatorId } = await req.json();
     if (!week || !title || !details) {
@@ -30,9 +33,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const entryId = Number(id);
     await prisma.timetableEntry.delete({ where: { id: entryId } });
     return NextResponse.json({ success: true });
