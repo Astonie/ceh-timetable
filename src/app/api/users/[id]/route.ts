@@ -6,10 +6,11 @@ const prisma = new PrismaClient();
 // GET /api/users/[id] - Get user profile
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
 
     if (isNaN(userId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
@@ -72,10 +73,11 @@ export async function GET(
 // PUT /api/users/[id] - Update user profile
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
     const { name, bio, avatar, isPublic } = await req.json();
 
     if (isNaN(userId)) {
