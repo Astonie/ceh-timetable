@@ -1,8 +1,6 @@
 "use client";
 import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -96,7 +94,7 @@ export default function PDFViewer({ pdfUrl, title, onClose }: PDFViewerProps) {
                   pageNumber={pageNumber}
                   renderTextLayer={false}
                   renderAnnotationLayer={false}
-                  className="shadow-2xl"
+                  className="shadow-2xl border border-slate-600"
                   width={Math.min(800, window.innerWidth - 100)}
                 />
               </Document>
