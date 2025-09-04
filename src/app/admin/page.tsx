@@ -147,7 +147,11 @@ export default function AdminPage() {
         xhr.onload = () => {
           if (xhr.status === 200 || xhr.status === 201) {
             const response = JSON.parse(xhr.responseText);
-            resolve(response);
+            if (response.success) {
+              resolve({ fileUrl: response.fileUrl, size: response.size });
+            } else {
+              reject(new Error(response.error || 'Upload failed'));
+            }
           } else {
             reject(new Error('Upload failed'));
           }
@@ -163,12 +167,12 @@ export default function AdminPage() {
       const response = await uploadPromise;
       
       // Update resource with file info
-      setNewResource({
-        ...newResource,
+      setNewResource(prev => ({
+        ...prev,
         url: response.fileUrl,
         fileSize: response.size,
         isUploadedFile: true
-      });
+      }));
       
       setUploadProgress(100);
       setSuccess('File uploaded successfully');
@@ -1436,7 +1440,11 @@ export default function AdminPage() {
                     <button
                       onClick={addResource}
                       className="px-4 py-2 bg-amber-600 text-amber-100 rounded-lg hover:bg-amber-500 transition-colors disabled:opacity-50"
-                      disabled={!newResource.title || !newResource.url}
+                      disabled={
+                        !newResource.title || 
+                        ((newResource.type === 'pdf' || newResource.type === 'link') && !newResource.url) ||
+                        (newResource.type === 'uploaded-pdf' && !newResource.url)
+                      }
                     >
                       Add Resource
                     </button>
