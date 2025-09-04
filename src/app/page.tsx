@@ -20,6 +20,17 @@ type TimetableEntry = {
   details: string[];
 };
 
+type Resource = {
+  id: number;
+  title: string;
+  description: string | null;
+  type: string;
+  url: string | null;
+  fileSize?: number | null;
+  isUploadedFile?: boolean;
+  createdAt: string;
+};
+
 export default function Home() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [facilitatorIndex, setFacilitatorIndex] = useState(0);
@@ -28,6 +39,7 @@ export default function Home() {
   const [showInfo, setShowInfo] = useState(false);
   const [showAllTopics, setShowAllTopics] = useState(false);
   const [openWeek, setOpenWeek] = useState<number | null>(null);
+  const [latestResources, setLatestResources] = useState<Resource[]>([]);
   const [meetingTime, setMeetingTime] = useState("20:00"); // Default to 8:00 PM
   const [meetingTimezone, setMeetingTimezone] = useState("CAT");
   const [isLoading, setIsLoading] = useState(true);
@@ -53,6 +65,21 @@ export default function Home() {
   const currentWeekIdx = getCurrentWeekIndex();
 
   useEffect(() => {
+    // Fetch latest resources
+    fetch('/api/resources', { cache: 'no-store' })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch resources');
+        return res.json();
+      })
+      .then(data => {
+        // Only show up to 3 latest resources
+        setLatestResources(data.slice(0, 3));
+      })
+      .catch(err => {
+        console.error('Error fetching resources:', err);
+      });
+      
+    // Fetch timetable
     setTtLoading(true);
     fetch('/api/timetable', { cache: 'no-store' })
       .then(res => {
@@ -719,6 +746,50 @@ export default function Home() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+        
+        {/* Study Resources Section */}
+        {latestResources.length > 0 && (
+          <div className="w-full max-w-6xl mt-12 p-6 bg-slate-950/80 border border-cyan-500/30 rounded-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-cyan-300 font-mono">STUDY_RESOURCES</h2>
+              <a 
+                href="/resources" 
+                className="px-4 py-2 bg-cyan-600/40 hover:bg-cyan-500/60 text-cyan-200 rounded-lg font-bold transition-all border border-cyan-500/30 text-sm"
+              >
+                VIEW_ALL →
+              </a>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {latestResources.map((resource) => (
+                <div 
+                  key={resource.id}
+                  className="bg-black/50 border border-cyan-700/30 rounded-xl p-4 hover:border-cyan-600/40 transition-all"
+                >
+                  <div className="flex items-center mb-2">
+                    <span className="text-cyan-400 mr-2 text-lg">
+                      {resource.type === 'uploaded-pdf' ? '📄' : resource.type === 'pdf' ? '📄' : '🔗'}
+                    </span>
+                    <h3 className="text-cyan-300 font-bold text-sm truncate">{resource.title}</h3>
+                  </div>
+                  
+                  {resource.description && (
+                    <p className="text-cyan-200/70 text-xs mb-3 line-clamp-2">{resource.description}</p>
+                  )}
+                  
+                  <a 
+                    href={resource.url || '#'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-cyan-400 hover:text-cyan-300 text-xs font-mono"
+                  >
+                    {resource.type === 'uploaded-pdf' ? 'Download' : 'View'} →
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         )}
         

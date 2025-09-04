@@ -12,11 +12,20 @@ type TimetableEntry = {
   details: string[];
 };
 
-// ...existing code...
-
 type Facilitator = {
   id: number;
   name: string;
+};
+
+type Resource = {
+  id: number;
+  title: string;
+  description: string | null;
+  type: string;  // 'pdf', 'uploaded-pdf', or 'link'
+  url: string | null;
+  fileSize?: number | null;
+  isUploadedFile?: boolean;
+  createdAt: string;
 };
 
 // Enhanced modal component with glassmorphism
@@ -48,6 +57,18 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+  
+  // Resources state
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [newResource, setNewResource] = useState({
+    title: '',
+    description: '',
+    type: 'link' as 'link' | 'pdf' | 'uploaded-pdf',
+    url: '',
+    fileSize: null as number | null,
+    isUploadedFile: false
+  });
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [editName, setEditName] = useState("");
 
   // Timetable state
@@ -58,7 +79,7 @@ export default function AdminPage() {
   const [ttLoading, setTtLoading] = useState(false);
   const [ttError, setTtError] = useState<string | null>(null);
   const [ttSuccess, setTtSuccess] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<'facilitators' | 'timetable' | 'settings'>("facilitators");
+  const [activeSection, setActiveSection] = useState<'facilitators' | 'timetable' | 'settings' | 'resources'>("facilitators");
   const [showAddModal, setShowAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -83,8 +104,80 @@ export default function AdminPage() {
       fetchFacilitators();
       fetchTimetable();
       fetchSettings();
+      fetchResources();
     }
   }, [mounted, isAuthenticated]);
+  
+  // Handle file uploads
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Check if file is a PDF
+    if (file.type !== 'application/pdf') {
+      setError('Only PDF files are allowed');
+      return;
+    }
+    
+    // Check file size (max 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size must be less than 5MB (current: ${(file.size / (1024 * 1024)).toFixed(2)}MB)`);
+      return;
+    }
+    
+    // Upload file
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      setUploadProgress(0);
+      const xhr = new XMLHttpRequest();
+      
+      // Track upload progress
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percentComplete);
+        }
+      };
+      
+      // Wait for upload to complete
+      const uploadPromise = new Promise<{ fileUrl: string, size: number }>((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status === 200 || xhr.status === 201) {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } else {
+            reject(new Error('Upload failed'));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Upload failed'));
+      });
+      
+      // Start upload
+      xhr.open('POST', '/api/upload', true);
+      xhr.send(formData);
+      
+      // Wait for upload to complete
+      const response = await uploadPromise;
+      
+      // Update resource with file info
+      setNewResource({
+        ...newResource,
+        url: response.fileUrl,
+        fileSize: response.size,
+        isUploadedFile: true
+      });
+      
+      setUploadProgress(100);
+      setSuccess('File uploaded successfully');
+    } catch (err) {
+      console.error('File upload error:', err);
+      setError('Failed to upload file. Please try again.');
+      setUploadProgress(0);
+    }
+  };
 
   // Show loading during authentication check or if not mounted
   if (!mounted || authLoading) {
@@ -499,6 +592,27 @@ export default function AdminPage() {
             </div>
             {activeSection === 'settings' && (
               <div className="ml-auto text-purple-900 animate-bounce">{'>'}</div>
+            )}
+          </button>
+          
+          <button 
+            onClick={() => setActiveSection('resources')} 
+            className={`group flex items-center gap-4 px-5 py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
+              activeSection === 'resources' 
+                ? 'bg-gradient-to-r from-amber-600/80 to-amber-500/80 text-black shadow-xl border border-amber-400/70 shadow-amber-500/20' 
+                : 'text-amber-300 hover:bg-amber-900/30 hover:text-amber-100 border border-amber-700/30 hover:border-amber-500/50'
+            }`}
+          >
+            {activeSection === 'resources' && <div className="absolute inset-0 bg-amber-400/10 animate-pulse"></div>}
+            <span className="text-2xl filter drop-shadow-lg">📚</span>
+            <div className="relative z-10">
+              <div className="text-base font-black tracking-wide">RESOURCES</div>
+              <div className={`text-xs font-mono ${activeSection === 'resources' ? 'text-amber-900' : 'text-amber-400/80'}`}>
+                {'// study_materials'}
+              </div>
+            </div>
+            {activeSection === 'resources' && (
+              <div className="ml-auto text-amber-900 animate-bounce">{'>'}</div>
             )}
           </button>
         </nav>
@@ -1110,7 +1224,316 @@ export default function AdminPage() {
             </section>
           )}
         </div>
+        {/* RESOURCES SECTION */}
+        {activeSection === 'resources' && (
+          <section className="mb-10 p-4">
+            <div className="bg-gradient-to-r from-amber-900/30 to-amber-800/10 rounded-3xl p-6 border border-amber-700/30">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-amber-300">CEH Study Materials</h2>
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="px-4 py-2 bg-amber-600/40 hover:bg-amber-500/60 text-amber-200 rounded-lg font-bold transition-all border border-amber-500/30"
+                >
+                  ADD NEW RESOURCE
+                </button>
+              </div>
+              
+              {error && (
+                <div className="p-4 mb-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+                  <p className="text-red-400">{error}</p>
+                </div>
+              )}
+              
+              {success && (
+                <div className="p-4 mb-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+                  <p className="text-green-400">{success}</p>
+                </div>
+              )}
+              
+              {isLoading ? (
+                <div className="flex justify-center p-8">
+                  <div className="terminal-loading text-amber-400">LOADING RESOURCES...</div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {resources.length === 0 ? (
+                    <p className="text-amber-400 text-center p-8">No study materials have been added yet.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {resources.map(resource => (
+                        <div key={resource.id} className="bg-black/50 border border-amber-700/30 rounded-xl p-5 shadow-md hover:shadow-amber-600/20 hover:border-amber-600/40 transition-all">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="text-xl font-bold text-amber-300 mb-1">
+                              {resource.type === 'uploaded-pdf' ? '📄 ' : resource.type === 'pdf' ? '🔗📄 ' : '🔗 '}
+                              {resource.title}
+                            </h3>
+                            <span className="px-2 py-1 text-xs rounded bg-amber-900/50 text-amber-300 border border-amber-700/30">
+                              {resource.type === 'uploaded-pdf' ? 'UPLOADED PDF' : resource.type.toUpperCase()}
+                            </span>
+                          </div>
+                          
+                          {resource.description && (
+                            <p className="text-amber-200 mb-3">{resource.description}</p>
+                          )}
+                          
+                          <div className="text-amber-400 font-mono text-sm mb-2 truncate">
+                            {resource.url}
+                          </div>
+                          
+                          {resource.fileSize && (
+                            <div className="text-amber-400/70 text-xs mb-2">
+                              File size: {(resource.fileSize / (1024 * 1024)).toFixed(2)} MB
+                            </div>
+                          )}
+                          
+                          <div className="flex justify-between items-center mt-3">
+                            <a 
+                              href={resource.url || '#'} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-amber-300 hover:text-amber-200 underline flex items-center"
+                            >
+                              <span className="mr-1">
+                                {resource.type === 'uploaded-pdf' ? 'Download' : 'Preview'}
+                              </span> <span className="text-xs">↗</span>
+                            </a>
+                            <button 
+                              onClick={() => deleteResource(resource.id)}
+                              className="text-red-400 hover:text-red-300 flex items-center"
+                            >
+                              <span className="mr-1">Delete</span> <span>×</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Add Resource Modal */}
+            <Modal open={showAddModal} onClose={() => setShowAddModal(false)}>
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-amber-300 mb-4">Add Study Material</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="title" className="block text-sm font-medium text-amber-300 mb-1">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      id="title"
+                      className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      placeholder="CEH v12 Study Guide"
+                      value={newResource.title}
+                      onChange={(e) => setNewResource({...newResource, title: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="description" className="block text-sm font-medium text-amber-300 mb-1">
+                      Description (optional)
+                    </label>
+                    <textarea
+                      id="description"
+                      rows={3}
+                      className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      placeholder="Official study guide with practice exams..."
+                      value={newResource.description}
+                      onChange={(e) => setNewResource({...newResource, description: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-amber-300 mb-1">
+                      Resource Type
+                    </label>
+                    <div className="flex space-x-4 flex-wrap">
+                      <label className="inline-flex items-center mb-2">
+                        <input
+                          type="radio"
+                          className="form-radio text-amber-600"
+                          name="resourceType"
+                          value="uploaded-pdf"
+                          checked={newResource.type === "uploaded-pdf"}
+                          onChange={() => setNewResource({...newResource, type: "uploaded-pdf", url: ""})}
+                        />
+                        <span className="ml-2 text-amber-200">Upload PDF</span>
+                      </label>
+                      <label className="inline-flex items-center mb-2">
+                        <input
+                          type="radio"
+                          className="form-radio text-amber-600"
+                          name="resourceType"
+                          value="pdf"
+                          checked={newResource.type === "pdf"}
+                          onChange={() => setNewResource({...newResource, type: "pdf", url: ""})}
+                        />
+                        <span className="ml-2 text-amber-200">External PDF Link</span>
+                      </label>
+                      <label className="inline-flex items-center mb-2">
+                        <input
+                          type="radio"
+                          className="form-radio text-amber-600"
+                          name="resourceType"
+                          value="link"
+                          checked={newResource.type === "link"}
+                          onChange={() => setNewResource({...newResource, type: "link", url: ""})}
+                        />
+                        <span className="ml-2 text-amber-200">External Link</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {newResource.type === "uploaded-pdf" ? (
+                    <div>
+                      <label htmlFor="fileUpload" className="block text-sm font-medium text-amber-300 mb-1">
+                        PDF File (max 5MB)
+                      </label>
+                      <input
+                        type="file"
+                        id="fileUpload"
+                        accept=".pdf"
+                        className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        onChange={handleFileChange}
+                      />
+                      {uploadProgress > 0 && uploadProgress < 100 && (
+                        <div className="mt-2">
+                          <div className="w-full bg-gray-700 rounded-full h-2.5">
+                            <div 
+                              className="bg-amber-500 h-2.5 rounded-full" 
+                              style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-amber-400 mt-1 text-right">{uploadProgress}% uploaded</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <label htmlFor="url" className="block text-sm font-medium text-amber-300 mb-1">
+                        URL
+                      </label>
+                      <input
+                        type="text"
+                        id="url"
+                        className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        placeholder={newResource.type === "pdf" ? "https://example.com/ceh-guide.pdf" : "https://example.com/ceh-resources"}
+                        value={newResource.url}
+                        onChange={(e) => setNewResource({...newResource, url: e.target.value})}
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <button
+                      onClick={() => setShowAddModal(false)}
+                      className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={addResource}
+                      className="px-4 py-2 bg-amber-600 text-amber-100 rounded-lg hover:bg-amber-500 transition-colors disabled:opacity-50"
+                      disabled={!newResource.title || !newResource.url}
+                    >
+                      Add Resource
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Modal>
+          </section>
+        )}
       </main>
     </div>
   );
+  
+  async function fetchResources() {
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch('/api/resources');
+      if (!res.ok) throw new Error('Failed to fetch resources');
+      const data = await res.json();
+      setResources(data);
+    } catch (err) {
+      console.error('Fetch resources error:', err);
+      setError('Failed to load resources. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  
+  async function addResource() {
+    setError(null);
+    setSuccess(null);
+    
+    // Validate based on type
+    if (newResource.type === 'uploaded-pdf') {
+      if (!newResource.title || !newResource.url) {
+        setError('Please upload a PDF file and provide a title');
+        return;
+      }
+    } else if (!newResource.title || !newResource.url) {
+      setError('Title and URL are required');
+      return;
+    }
+    
+    try {
+      const res = await fetch('/api/resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newResource)
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to add resource');
+      }
+      
+      // Reset form and close modal
+      setNewResource({
+        title: '',
+        description: '',
+        type: 'link',
+        url: '',
+        fileSize: null,
+        isUploadedFile: false
+      });
+      setUploadProgress(0);
+      setShowAddModal(false);
+      
+      // Refresh resources list
+      fetchResources();
+      setSuccess('Resource added successfully');
+    } catch (err) {
+      console.error('Add resource error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to add resource');
+    }
+  }
+  
+  async function deleteResource(id: number) {
+    if (!confirm('Are you sure you want to delete this resource?')) return;
+    
+    setError(null);
+    setSuccess(null);
+    
+    try {
+      const res = await fetch(`/api/resources/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (!res.ok) throw new Error('Failed to delete resource');
+      
+      // Refresh resources list
+      fetchResources();
+      setSuccess('Resource deleted successfully');
+    } catch (err) {
+      console.error('Delete resource error:', err);
+      setError('Failed to delete resource');
+    }
+  }
 }
