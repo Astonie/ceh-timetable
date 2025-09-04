@@ -120,11 +120,18 @@ export default function Home() {
     });
   }, [meetingTime]);
 
-  // Check if meeting button should be visible (2 minutes before to 2 hours after meeting)
+  // Check if meeting button should be visible (2 minutes before to 1 hour after meeting)
   const getMeetingStatus = useCallback(() => {
     if (!meetingTime) return { showButton: false, status: "No meeting scheduled" };
     
     const catNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Harare" }));
+    const dayOfWeek = catNow.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday
+    
+    // Check if today is a meeting day (Tuesday = 2, Thursday = 4)
+    if (dayOfWeek !== 2 && dayOfWeek !== 4) {
+      return { showButton: false, status: "Next meeting: " + getNextMeetingDateTime() };
+    }
+    
     const [hours, minutes] = meetingTime.split(':').map(Number);
     
     // Get today's meeting time
@@ -135,7 +142,7 @@ export default function Home() {
     const timeDiff = (todayMeeting.getTime() - catNow.getTime()) / (1000 * 60);
     
     // Show button from 2 minutes before to 1 hour after (meeting is 1 hour long)
-    const showButton = timeDiff >= -2 && timeDiff <= 60;
+    const showButton = timeDiff >= -60 && timeDiff <= 2;
     
     let status = "";
     if (timeDiff > 2) {
@@ -444,6 +451,10 @@ export default function Home() {
               </div>
               
               <div className="text-center p-4 bg-green-900/20 rounded-xl border border-green-500/30">
+                {/* Debug info for facilitator */}
+                <div className="text-xs text-yellow-400 mb-2">
+                  Debug Facilitator: Show = {getMeetingStatus().showButton ? 'YES' : 'NO'} | Members = {teamMembers.length} | Index = {facilitatorIndex}
+                </div>
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce"></div>
@@ -489,7 +500,9 @@ export default function Home() {
                 <div className="text-lg font-bold text-cyan-100 mb-2">{getMeetingStatus().status}</div>
                 <div className="text-cyan-400/80 text-sm mb-4">Tuesday & Thursday @ {formatMeetingTime()}</div>
                 {/* Temporary debug info */}
-                <div className="text-xs text-yellow-400 mb-2">Debug: Link = {meetingLink || 'Not set'}</div>
+                <div className="text-xs text-yellow-400 mb-2">
+                  Debug: Link = {meetingLink || 'Not set'} | Day = {new Date().getDay()} | Show = {getMeetingStatus().showButton ? 'YES' : 'NO'}
+                </div>
                 {meetingLink && getMeetingStatus().showButton && (
                   <a 
                     href={meetingLink}
