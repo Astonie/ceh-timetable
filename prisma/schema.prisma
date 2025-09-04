@@ -44,3 +44,56 @@ model Resource {
   isUploadedFile Boolean  @default(false)
   createdAt      DateTime @default(now())
 }
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  email       String   @unique
+  name        String
+  bio         String?
+  avatar      String?  // Base64 image or URL
+  isPublic    Boolean  @default(true)
+  studyPoints Int      @default(0)
+  joinDate    DateTime @default(now())
+  lastActive  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  memberships StudyGroupMember[]
+  ownedGroups StudyGroup[]
+
+  @@map("users")
+}
+
+model StudyGroup {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  ownerId     Int
+  isPublic    Boolean  @default(true)
+  maxMembers  Int      @default(10)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  owner       User     @relation(fields: [ownerId], references: [id])
+  members     StudyGroupMember[]
+
+  @@map("study_groups")
+}
+
+model StudyGroupMember {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  groupId   Int
+  joinedAt  DateTime   @default(now())
+  role      String     @default("member") // 'owner', 'admin', 'member'
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id])
+  group     StudyGroup @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+  @@map("study_group_members")
+}

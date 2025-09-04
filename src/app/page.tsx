@@ -3,6 +3,9 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import "./cyberpunk.css";
+import Leaderboard from "../components/Leaderboard";
+import StudyGroups from "../components/StudyGroups";
+import JoinModal from "../components/JoinModal";
 // Helper to extract the first date in the week string (e.g. 'Week 1 (June 10–15)' => June 10)
 function getStartDateFromWeek(weekStr: string): Date | null {
   const match = weekStr.match(/\(([^–\)]+)[–\)]/);
@@ -45,6 +48,7 @@ export default function Home() {
   const [meetingLink, setMeetingLink] = useState(""); // Meeting link URL
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
   const [timetable, setTimetable] = useState<TimetableEntry[]>([]);
   const [ttLoading, setTtLoading] = useState(true);
@@ -305,6 +309,15 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowJoinModal(true)}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600/40 to-purple-600/40 border border-blue-500/40 rounded-xl backdrop-blur-sm shadow-lg hover:from-blue-500/50 hover:to-purple-500/50 transition-all flex items-center gap-2"
+              title="Join the CEH Study Community"
+            >
+              <span className="text-blue-200 font-bold text-sm font-mono">JOIN.COMMUNITY</span>
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+            </button>
+            
             <button
               className="p-3 text-green-300 hover:text-green-100 hover:bg-green-900/30 rounded-xl transition-all border border-green-600/30 hover:border-green-400/50 focus:outline-none focus:ring-2 focus:ring-green-400"
               aria-label="System Info"
@@ -810,6 +823,12 @@ export default function Home() {
           </div>
         )}
         
+        {/* Community Section */}
+        <div className="w-full max-w-6xl mt-12 space-y-8">
+          <Leaderboard />
+          <StudyGroups />
+        </div>
+        
         {/* System Status Footer */}
         <div className="w-full max-w-6xl mt-12 p-4 bg-slate-950/80 border border-green-500/30 rounded-2xl font-mono text-center">
           <div className="flex items-center justify-center gap-8 text-xs">
@@ -831,6 +850,16 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Join Community Modal */}
+      <JoinModal
+        isOpen={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+        onSuccess={(user) => {
+          console.log('User joined:', user);
+          // You could show a success message or redirect to profile
+        }}
+      />
     </div>
   );
 }
