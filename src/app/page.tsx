@@ -33,7 +33,6 @@ type Resource = {
 export default function Home() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [facilitatorIndex, setFacilitatorIndex] = useState(0);
-  const [showFacilitatorName, setShowFacilitatorName] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [timetable, setTimetable] = useState<TimetableEntry[]>([]);
@@ -50,7 +49,16 @@ export default function Home() {
   // Fetch meeting settings
   const fetchMeetingSettings = useCallback(async () => {
     try {
-      const res = await fetch("/api/settings", { cache: "no-store" });
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const res = await fetch(`/api/settings?_t=${timestamp}`, { 
+        cache: "no-store",
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       if (!res.ok) throw new Error(`Settings API error: ${res.status}`);
       const data = await res.json();
       
@@ -126,15 +134,15 @@ export default function Home() {
     // Calculate time difference in minutes
     const timeDiff = (todayMeeting.getTime() - catNow.getTime()) / (1000 * 60);
     
-    // Show button from 2 minutes before to 2 hours after
-    const showButton = timeDiff >= -2 && timeDiff <= 120;
+    // Show button from 2 minutes before to 1 hour after (meeting is 1 hour long)
+    const showButton = timeDiff >= -2 && timeDiff <= 60;
     
     let status = "";
     if (timeDiff > 2) {
       status = `Meeting starts in ${Math.ceil(timeDiff)} minutes`;
     } else if (timeDiff >= -2 && timeDiff <= 0) {
       status = "Meeting is starting now!";
-    } else if (timeDiff > -120) {
+    } else if (timeDiff > -60) {
       status = `Meeting in progress (${Math.abs(Math.floor(timeDiff))} min ago)`;
     } else {
       status = "Next meeting: " + getNextMeetingDateTime();
@@ -216,15 +224,35 @@ export default function Home() {
     initializeData();
   }, [fetchMeetingSettings]);
 
+  // Refresh settings when page becomes visible (in case admin updated them)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchMeetingSettings();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchMeetingSettings]);
+
   // Update meeting status every minute for real-time countdown
   useEffect(() => {
     const interval = setInterval(() => {
       // This will trigger a re-render to update the meeting status
       setMeetingTime(prev => prev);
+      
+      // Also refresh settings every 5 minutes to pick up admin changes
+      const now = Date.now();
+      if (now % (5 * 60 * 1000) < 60000) { // Every 5 minutes
+        fetchMeetingSettings();
+      }
     }, 60000); // Update every minute
 
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchMeetingSettings]);
 
   // Facilitator management
   useEffect(() => {
@@ -284,10 +312,6 @@ export default function Home() {
       const day = catTime.getDay();
       const hours = catTime.getHours();
       const minutes = catTime.getMinutes();
-      
-      // Update facilitator display based on meeting status
-      const meetingStatus = getMeetingStatus();
-      setShowFacilitatorName(meetingStatus.showButton);
       
       if ((day === 2 || day === 4) && hours === 19 && minutes >= 20 && minutes < 21) {
         advanceFacilitator();
@@ -429,7 +453,7 @@ export default function Home() {
                   </div>
                 ) : error ? (
                   <span className="text-red-400">{error}</span>
-                ) : showFacilitatorName ? (
+                ) : getMeetingStatus().showButton ? (
                   teamMembers[facilitatorIndex] ? (
                     <div>
                       <span className="text-2xl font-bold text-green-100">
@@ -443,7 +467,7 @@ export default function Home() {
                 ) : (
                   <div>
                     <span className="text-yellow-300">Standby Mode</span>
-                    <div className="text-yellow-400/80 text-sm mt-2">Reveals at {formatMeetingTime()}</div>
+                    <div className="text-yellow-400/80 text-sm mt-2">Reveals 2 minutes before session</div>
                   </div>
                 )}
               </div>
