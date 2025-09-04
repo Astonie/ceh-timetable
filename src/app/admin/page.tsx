@@ -1308,8 +1308,9 @@ export default function AdminPage() {
                           <div className="flex justify-between items-center mt-3">
                             <a 
                               href={resource.url || '#'} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
+                              download={resource.type === 'uploaded-pdf' ? (resource.title ? `${resource.title}.pdf` : 'download.pdf') : undefined}
+                              target={resource.type === 'uploaded-pdf' ? undefined : "_blank"}
+                              rel={resource.type === 'uploaded-pdf' ? undefined : "noopener noreferrer"}
                               className="text-amber-300 hover:text-amber-200 underline flex items-center"
                             >
                               <span className="mr-1">

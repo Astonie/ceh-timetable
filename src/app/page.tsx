@@ -797,8 +797,9 @@ export default function Home() {
                   
                   <a 
                     href={resource.url || '#'} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                    download={resource.type === 'uploaded-pdf' ? (resource.title ? `${resource.title}.pdf` : 'download.pdf') : undefined}
+                    target={resource.type === 'uploaded-pdf' ? undefined : "_blank"}
+                    rel={resource.type === 'uploaded-pdf' ? undefined : "noopener noreferrer"}
                     className="inline-flex items-center text-cyan-400 hover:text-cyan-300 text-xs font-mono"
                   >
                     {resource.type === 'uploaded-pdf' ? 'Download' : 'View'} →

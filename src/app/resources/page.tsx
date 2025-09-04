@@ -95,8 +95,7 @@ export default function ResourcesPage() {
                 {resource.type === 'uploaded-pdf' ? (
                   <a 
                     href={resource.url || '#'} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                    download={resource.title ? `${resource.title}.pdf` : 'download.pdf'}
                     className="inline-flex items-center border border-green-400 px-4 py-2 text-sm hover:bg-green-400 hover:text-black transition-colors duration-200"
                   >
                     <span className="mr-2">⬇️</span>
