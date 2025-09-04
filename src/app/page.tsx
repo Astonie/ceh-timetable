@@ -673,7 +673,16 @@ export default function Home() {
       </footer>
 
       {/* Modals */}
-      {showJoinModal && <JoinModal onClose={() => setShowJoinModal(false)} />}
+      {showJoinModal && (
+        <JoinModal 
+          isOpen={showJoinModal}
+          onClose={() => setShowJoinModal(false)} 
+          onSuccess={(user) => {
+            console.log('User joined:', user);
+            setShowJoinModal(false);
+          }}
+        />
+      )}
 
       {/* Info Modal */}
       {showInfo && (
