@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import "./cyberpunk.css";
-import Leaderboard from "../components/Leaderboard";
-import StudyGroups from "../components/StudyGroups";
 import JoinModal from "../components/JoinModal";
 
 // Helper to extract the first date in the week string
@@ -77,7 +75,7 @@ export default function Home() {
         minute: '2-digit', 
         hour12: true 
       }) + ` ${meetingTimezone}`;
-    } catch (e) {
+    } catch {
       return "8:00 PM CAT";
     }
   }, [meetingTime, meetingTimezone]);
