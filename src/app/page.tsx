@@ -42,6 +42,7 @@ export default function Home() {
   const [latestResources, setLatestResources] = useState<Resource[]>([]);
   const [meetingTime, setMeetingTime] = useState("20:00"); // Default to 8:00 PM
   const [meetingTimezone, setMeetingTimezone] = useState("CAT");
+  const [meetingLink, setMeetingLink] = useState(""); // Meeting link URL
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -105,9 +106,11 @@ export default function Home() {
         const settings = await res.json();
         const timeSettings = settings.find((s: {key: string, value: string}) => s.key === 'meeting_time');
         const timezoneSettings = settings.find((s: {key: string, value: string}) => s.key === 'meeting_timezone');
+        const linkSettings = settings.find((s: {key: string, value: string}) => s.key === 'meeting_link');
         
         if (timeSettings) setMeetingTime(timeSettings.value);
         if (timezoneSettings) setMeetingTimezone(timezoneSettings.value);
+        if (linkSettings) setMeetingLink(linkSettings.value);
       }
     } catch (error) {
       console.error('Failed to fetch meeting settings:', error);
@@ -500,6 +503,19 @@ export default function Home() {
               <div className="text-center p-4 bg-cyan-900/30 border border-cyan-500/30 rounded-xl">
                 <span className="text-cyan-100 text-lg font-mono font-bold">{nextMeetingDate}</span>
                 <div className="text-cyan-400 text-sm font-mono mt-2">{'// Tuesday.Thursday @ ' + formatMeetingTime().replace(' ', '.')}</div>
+                {meetingLink && (
+                  <div className="mt-4">
+                    <a 
+                      href={meetingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-600/80 hover:bg-cyan-500/90 border border-cyan-400/50 rounded-lg text-cyan-100 hover:text-white font-mono text-sm transition-all duration-200 hover:scale-105"
+                    >
+                      <span className="text-lg">🔗</span>
+                      <span>JOIN_MEETING</span>
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>

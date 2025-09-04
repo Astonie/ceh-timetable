@@ -11,7 +11,7 @@ describe("/api/facilitator API", () => {
   });
   beforeEach(async () => {
     // Reset state before each test
-    await prisma.facilitatorState.deleteMany({});
+    await prisma.facilitator.deleteMany({});
   });
 
   it("GET returns initial state and team members", async () => {

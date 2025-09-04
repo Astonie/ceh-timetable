@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -68,8 +68,10 @@ export default function AdminPage() {
     fileSize: null as number | null,
     isUploadedFile: false
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [editName, setEditName] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Timetable state
   const [timetable, setTimetable] = useState<TimetableEntry[]>([]);
@@ -108,8 +110,8 @@ export default function AdminPage() {
     }
   }, [mounted, isAuthenticated]);
   
-  // Handle file uploads
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file selection (don't upload yet)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
@@ -126,12 +128,24 @@ export default function AdminPage() {
       return;
     }
     
+    // Store the selected file
+    setSelectedFile(file);
+    setError(null);
+  };
+
+  // Handle file upload
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+    
     // Upload file
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', selectedFile);
     
     try {
       setUploadProgress(0);
+      setError(null);
+      setSuccess(null);
+      
       const xhr = new XMLHttpRequest();
       
       // Track upload progress
@@ -176,6 +190,7 @@ export default function AdminPage() {
       
       setUploadProgress(100);
       setSuccess('File uploaded successfully');
+      setSelectedFile(null);
     } catch (err) {
       console.error('File upload error:', err);
       setError('Failed to upload file. Please try again.');
@@ -1361,7 +1376,14 @@ export default function AdminPage() {
                           name="resourceType"
                           value="uploaded-pdf"
                           checked={newResource.type === "uploaded-pdf"}
-                          onChange={() => setNewResource({...newResource, type: "uploaded-pdf", url: ""})}
+                          onChange={() => {
+                            setNewResource({...newResource, type: "uploaded-pdf", url: ""});
+                            setSelectedFile(null);
+                            setUploadProgress(0);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = '';
+                            }
+                          }}
                         />
                         <span className="ml-2 text-amber-200">Upload PDF</span>
                       </label>
@@ -1372,7 +1394,14 @@ export default function AdminPage() {
                           name="resourceType"
                           value="pdf"
                           checked={newResource.type === "pdf"}
-                          onChange={() => setNewResource({...newResource, type: "pdf", url: ""})}
+                          onChange={() => {
+                            setNewResource({...newResource, type: "pdf", url: ""});
+                            setSelectedFile(null);
+                            setUploadProgress(0);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = '';
+                            }
+                          }}
                         />
                         <span className="ml-2 text-amber-200">External PDF Link</span>
                       </label>
@@ -1383,7 +1412,14 @@ export default function AdminPage() {
                           name="resourceType"
                           value="link"
                           checked={newResource.type === "link"}
-                          onChange={() => setNewResource({...newResource, type: "link", url: ""})}
+                          onChange={() => {
+                            setNewResource({...newResource, type: "link", url: ""});
+                            setSelectedFile(null);
+                            setUploadProgress(0);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = '';
+                            }
+                          }}
                         />
                         <span className="ml-2 text-amber-200">External Link</span>
                       </label>
@@ -1399,9 +1435,24 @@ export default function AdminPage() {
                         type="file"
                         id="fileUpload"
                         accept=".pdf"
+                        ref={fileInputRef}
                         className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                         onChange={handleFileChange}
                       />
+                      {selectedFile && (
+                        <div className="mt-2 flex items-center gap-3">
+                          <button
+                            onClick={handleUpload}
+                            disabled={!selectedFile || uploadProgress > 0}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50"
+                          >
+                            {uploadProgress > 0 ? `Uploading... ${uploadProgress}%` : 'Upload PDF'}
+                          </button>
+                          <span className="text-amber-400 text-sm">
+                            {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
+                          </span>
+                        </div>
+                      )}
                       {uploadProgress > 0 && uploadProgress < 100 && (
                         <div className="mt-2">
                           <div className="w-full bg-gray-700 rounded-full h-2.5">
@@ -1511,7 +1562,11 @@ export default function AdminPage() {
         fileSize: null,
         isUploadedFile: false
       });
+      setSelectedFile(null);
       setUploadProgress(0);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       setShowAddModal(false);
       
       // Refresh resources list

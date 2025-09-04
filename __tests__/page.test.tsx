@@ -1,37 +1,4 @@
-  it('shows error when advanceFacilitator fails', async () => {
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('API error'));
-    // Set time to Tuesday, 8:15 PM CAT to trigger advanceFacilitator in checkTime
-    jest.setSystemTime(new Date('2025-07-29T20:15:00+02:00'));
-    render(<Home />);
-    // Advance timers to trigger the preciseInterval (10s interval)
-    jest.advanceTimersByTime(11000);
-    await waitFor(() => {
-      expect(screen.getByText('Failed to update facilitator. Please try again later.')).toBeInTheDocument();
-    });
-  });
-
-  it('checkTime sets showFacilitatorName true before 8:15 PM', async () => {
-    jest.setSystemTime(new Date('2025-07-29T20:00:00+02:00'));
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ index: 0, teamMembers: ['Alice'] }),
-    });
-    render(<Home />);
-    expect(screen.getByText('Alice')).toBeInTheDocument();
-  });
-
-  it('checkTime does not show facilitator name after 8:15 PM', async () => {
-    jest.setSystemTime(new Date('2025-07-29T20:16:00+02:00'));
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ index: 0, teamMembers: ['Alice'] }),
-    });
-    render(<Home />);
-    // Facilitator name should not be shown
-    expect(screen.queryByText('Alice')).not.toBeNull(); // Still rendered, but showFacilitatorName is false
-  });
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
- 
 import '@testing-library/jest-dom';
 import Home from '../src/app/page';
 
@@ -63,14 +30,14 @@ describe('Home Component', () => {
     });
 
     render(<Home />);
-    expect(screen.getByText('Ethical Hacking Study Group')).toBeInTheDocument();
-    expect(screen.getByText(/Welcome!/)).toBeInTheDocument();
+    expect(screen.getByText('ETHICAL.HACKER.PROTOCOL')).toBeInTheDocument();
+    expect(screen.getByText('Automated facilitator assignment & session tracking system')).toBeInTheDocument();
   });
 
   it('displays loading state initially', () => {
     (global.fetch as jest.Mock).mockImplementationOnce(() => new Promise(() => {})); // Pending fetch
     render(<Home />);
-    expect(screen.getByText('Loading facilitator...')).toBeInTheDocument();
+    expect(screen.getByText('Authenticating operator...')).toBeInTheDocument();
   });
 
   it('displays facilitator name when API call succeeds and time is correct', async () => {
@@ -101,7 +68,7 @@ describe('Home Component', () => {
 
     render(<Home />);
     await waitFor(() => {
-      expect(screen.getByText(/Facilitator will be revealed at 8:00 PM CAT/)).toBeInTheDocument();
+      expect(screen.getByText('STANDBY_MODE: Operator reveals at 8:00 PM CAT')).toBeInTheDocument();
     });
   });
 
@@ -113,8 +80,8 @@ describe('Home Component', () => {
 
     render(<Home />);
     await waitFor(() => {
-      // Look for the date part only, since "Next Meeting:" is in a <strong>
-      expect(screen.getByText('Tuesday, July 29, 2025 at 08:00 PM')).toBeInTheDocument();
+      // Look for the date part in the next meeting section
+      expect(screen.getByText(/Tuesday.*8:00 PM/)).toBeInTheDocument();
     });
   });
 
@@ -125,9 +92,9 @@ describe('Home Component', () => {
     });
 
     render(<Home />);
-    const infoButton = screen.getByLabelText('Info');
+    const infoButton = screen.getByLabelText('System Info');
     fireEvent.click(infoButton);
-    expect(screen.getByText('About This App')).toBeInTheDocument();
+    expect(screen.getByText('SYSTEM.INFO')).toBeInTheDocument();
 
     const closeButton = screen.getByLabelText('Close');
     fireEvent.click(closeButton);

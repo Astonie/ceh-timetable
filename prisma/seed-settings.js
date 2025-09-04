@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -36,6 +36,17 @@ async function seedSettings() {
         key: 'meeting_days',
         value: 'Monday,Tuesday,Wednesday,Thursday,Friday',
         description: 'Days when meetings are held (comma-separated)'
+      }
+    });
+
+    // Meeting link setting
+    await prisma.setting.upsert({
+      where: { key: 'meeting_link' },
+      update: {},
+      create: {
+        key: 'meeting_link',
+        value: '',
+        description: 'Meeting link URL (leave empty to hide the join button)'
       }
     });
 
