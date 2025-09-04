@@ -188,6 +188,74 @@ async function main() {
   }
 
   console.log('Timetable entries seeded successfully!');
+
+  // Seed default settings
+  const defaultSettings = [
+    {
+      key: 'meeting_link',
+      value: 'https://meet.google.com/your-meeting-room',
+      description: 'Google Meet link for weekly study sessions'
+    },
+    {
+      key: 'meeting_time',
+      value: '20:00',
+      description: 'Default meeting time in 24-hour format'
+    },
+    {
+      key: 'meeting_timezone',
+      value: 'CAT',
+      description: 'Timezone for meeting schedule (CAT = Central Africa Time)'
+    },
+    {
+      key: 'meeting_day',
+      value: 'Saturday',
+      description: 'Day of the week for regular meetings'
+    },
+    {
+      key: 'study_group_name',
+      value: 'CEH v13 Study Group',
+      description: 'Name of the study group'
+    },
+    {
+      key: 'contact_email',
+      value: 'admin@cehstudygroup.com',
+      description: 'Contact email for study group inquiries'
+    },
+    {
+      key: 'backup_meeting_link',
+      value: 'https://zoom.us/j/your-backup-room',
+      description: 'Backup meeting link in case primary link fails'
+    },
+    {
+      key: 'group_size_limit',
+      value: '50',
+      description: 'Maximum number of participants in the study group'
+    },
+    {
+      key: 'course_duration_weeks',
+      value: '20',
+      description: 'Total duration of the CEH course in weeks'
+    },
+    {
+      key: 'lab_environment_guide',
+      value: 'https://docs.google.com/document/d/your-lab-setup-guide',
+      description: 'Link to lab environment setup instructions'
+    }
+  ];
+
+  // Upsert settings (create or update if exists)
+  for (const setting of defaultSettings) {
+    await prisma.setting.upsert({
+      where: { key: setting.key },
+      update: { 
+        value: setting.value,
+        description: setting.description
+      },
+      create: setting
+    });
+  }
+
+  console.log('Default settings seeded successfully!');
 }
 
 main()

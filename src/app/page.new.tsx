@@ -55,9 +55,17 @@ export default function Home() {
       if (!res.ok) throw new Error(`Settings API error: ${res.status}`);
       const data = await res.json();
       
-      if (data.meetingTime) setMeetingTime(data.meetingTime);
-      if (data.meetingTimezone) setMeetingTimezone(data.meetingTimezone);
-      if (data.meetingLink) setMeetingLink(data.meetingLink);
+      // Convert array of settings to object for easier access
+      const settings: { [key: string]: string } = {};
+      if (Array.isArray(data)) {
+        data.forEach((setting: { key: string; value: string }) => {
+          settings[setting.key] = setting.value;
+        });
+      }
+      
+      if (settings.meeting_time) setMeetingTime(settings.meeting_time);
+      if (settings.meeting_timezone) setMeetingTimezone(settings.meeting_timezone);
+      if (settings.meeting_link) setMeetingLink(settings.meeting_link);
     } catch (e) {
       console.error("Fetch settings error:", e);
     }
