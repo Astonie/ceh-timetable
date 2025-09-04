@@ -2,7 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import PDFViewer from '../../components/PDFViewer';
+import dynamic from 'next/dynamic';
+
+// Dynamically import PDFViewer with no SSR to avoid DOMMatrix issues
+const PDFViewer = dynamic(() => import('../../components/PDFViewer'), {
+  ssr: false,
+  loading: () => (
+    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-slate-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 w-full max-w-4xl h-[90vh] relative overflow-hidden flex items-center justify-center">
+        <div className="text-white text-xl">Loading PDF Viewer...</div>
+      </div>
+    </div>
+  )
+});
 
 // Resource type
 interface Resource {
