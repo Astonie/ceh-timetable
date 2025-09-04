@@ -37,7 +37,12 @@ export async function GET() {
     return NextResponse.json(groups);
   } catch (error) {
     console.error('Error fetching groups:', error);
-    return NextResponse.json({ error: 'Failed to fetch groups' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch groups', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -89,6 +94,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(group, { status: 201 });
   } catch (error) {
     console.error('Error creating group:', error);
-    return NextResponse.json({ error: 'Failed to create group' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create group', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
   }
 }

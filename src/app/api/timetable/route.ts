@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
 export async function GET() {
+  let prisma: PrismaClient | null = null;
   try {
-    const entries = await prisma.timetableEntry.findMany({ 
+    prisma = new PrismaClient();
+    const entries = await prisma.timetableEntry.findMany({
       orderBy: { id: "asc" },
       include: {
         facilitator: true
@@ -14,12 +14,21 @@ export async function GET() {
     return NextResponse.json(entries);
   } catch (error) {
     console.error("GET /api/timetable error:", error);
-    return NextResponse.json({ error: "Failed to fetch timetable entries" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch timetable entries", details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  } finally {
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   }
 }
 
 export async function POST(req: NextRequest) {
+  let prisma: PrismaClient | null = null;
   try {
+    prisma = new PrismaClient();
     const { week, title, details, facilitatorId } = await req.json();
     if (!week || !title || !details) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -38,6 +47,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(entry);
   } catch (error) {
     console.error("POST /api/timetable error:", error);
-    return NextResponse.json({ error: "Failed to create timetable entry" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create timetable entry", details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  } finally {
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   }
 }

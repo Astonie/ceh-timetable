@@ -9,9 +9,11 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && next build",
-    "test": "jest --ci --coverage --passWithNoTests",
+    "test": "node --test tests/*.test.mjs",
+    "test:verbose": "node run-tests.mjs",
+    "test:jest": "jest --ci --coverage --passWithNoTests",
     "test:coverage": "jest --coverage",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/extension-accelerate": "^2.0.1",

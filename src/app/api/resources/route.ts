@@ -1,24 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
 // GET /api/resources - Get all resources
 export async function GET() {
+  let prisma: PrismaClient | null = null;
   try {
+    prisma = new PrismaClient();
     const resources = await prisma.resource.findMany({
       orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(resources);
   } catch (error) {
     console.error("GET /api/resources error:", error);
-    return NextResponse.json({ error: "Failed to fetch resources" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch resources", details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  } finally {
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   }
 }
 
 // POST /api/resources - Create a new resource
 export async function POST(req: NextRequest) {
+  let prisma: PrismaClient | null = null;
   try {
+    prisma = new PrismaClient();
     const { title, description, type, url, fileSize, isUploadedFile } = await req.json();
     
     if (!title || !type || !url) {
@@ -44,6 +53,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(resource, { status: 201 });
   } catch (error) {
     console.error("POST /api/resources error:", error);
-    return NextResponse.json({ error: "Failed to create resource" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create resource", details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  } finally {
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   }
 }
