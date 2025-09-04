@@ -13,7 +13,6 @@ type Facilitator = {
   id: number;
   name: string;
   email: string;
-  bio: string | null;
 };
 
 type Announcement = {
@@ -74,17 +73,24 @@ export default function CommunityPage() {
         setIsLoading(true);
         setError(null);
         
-        // Fetch members
-        const membersRes = await fetch("/api/members", { cache: "no-store" });
+        // Fetch members (users)
+        const membersRes = await fetch("/api/users", { cache: "no-store" });
         if (membersRes.ok) {
           const membersData = await membersRes.json();
           if (Array.isArray(membersData)) {
-            setMembers(membersData);
+            // Transform user data to match Member type
+            const transformedMembers = membersData.map(user => ({
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              joinedAt: user.joinDate
+            }));
+            setMembers(transformedMembers);
           }
         }
 
-        // Fetch facilitators
-        const facilitatorsRes = await fetch("/api/facilitator", { cache: "no-store" });
+        // Fetch facilitators (use plural endpoint)
+        const facilitatorsRes = await fetch("/api/facilitators", { cache: "no-store" });
         if (facilitatorsRes.ok) {
           const facilitatorsData = await facilitatorsRes.json();
           if (Array.isArray(facilitatorsData)) {
@@ -411,11 +417,9 @@ export default function CommunityPage() {
                           </div>
                           <h3 className="text-lg font-bold text-white mb-1">{facilitator.name}</h3>
                           <p className="text-sm text-gray-400 mb-3">{facilitator.email}</p>
-                          {facilitator.bio && (
-                            <p className="text-sm text-gray-300 text-center leading-relaxed">
-                              {facilitator.bio}
-                            </p>
-                          )}
+                          <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
+                            <span>Ethical Hacking Facilitator</span>
+                          </div>
                         </div>
                       </div>
                     ))

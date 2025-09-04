@@ -34,7 +34,6 @@ export default function Home() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [facilitatorIndex, setFacilitatorIndex] = useState(0);
   const [showFacilitatorName, setShowFacilitatorName] = useState(false);
-  const [nextMeetingDate, setNextMeetingDate] = useState("");
   const [showInfo, setShowInfo] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [timetable, setTimetable] = useState<TimetableEntry[]>([]);
@@ -113,6 +112,37 @@ export default function Home() {
     });
   }, [meetingTime]);
 
+  // Check if meeting button should be visible (2 minutes before to 2 hours after meeting)
+  const getMeetingStatus = useCallback(() => {
+    if (!meetingTime) return { showButton: false, status: "No meeting scheduled" };
+    
+    const catNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Harare" }));
+    const [hours, minutes] = meetingTime.split(':').map(Number);
+    
+    // Get today's meeting time
+    const todayMeeting = new Date(catNow);
+    todayMeeting.setHours(hours, minutes, 0, 0);
+    
+    // Calculate time difference in minutes
+    const timeDiff = (todayMeeting.getTime() - catNow.getTime()) / (1000 * 60);
+    
+    // Show button from 2 minutes before to 2 hours after
+    const showButton = timeDiff >= -2 && timeDiff <= 120;
+    
+    let status = "";
+    if (timeDiff > 2) {
+      status = `Meeting starts in ${Math.ceil(timeDiff)} minutes`;
+    } else if (timeDiff >= -2 && timeDiff <= 0) {
+      status = "Meeting is starting now!";
+    } else if (timeDiff > -120) {
+      status = `Meeting in progress (${Math.abs(Math.floor(timeDiff))} min ago)`;
+    } else {
+      status = "Next meeting: " + getNextMeetingDateTime();
+    }
+    
+    return { showButton, status, timeDiff };
+  }, [meetingTime, getNextMeetingDateTime]);
+
   // Fetch timetable data
   useEffect(() => {
     async function fetchTimetable() {
@@ -186,9 +216,15 @@ export default function Home() {
     initializeData();
   }, [fetchMeetingSettings]);
 
+  // Update meeting status every minute for real-time countdown
   useEffect(() => {
-    setNextMeetingDate(getNextMeetingDateTime());
-  }, [getNextMeetingDateTime]);
+    const interval = setInterval(() => {
+      // This will trigger a re-render to update the meeting status
+      setMeetingTime(prev => prev);
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Facilitator management
   useEffect(() => {
@@ -252,7 +288,6 @@ export default function Home() {
       setShowFacilitatorName((day === 2 || day === 4) && hours === 19 && minutes < 20);
       if ((day === 2 || day === 4) && hours === 19 && minutes >= 20 && minutes < 21) {
         advanceFacilitator();
-        setNextMeetingDate(getNextMeetingDateTime());
       }
     };
 
@@ -275,7 +310,6 @@ export default function Home() {
       const minutes = catTime.getMinutes();
       if ((day === 2 || day === 4) && hours === 19 && minutes >= 20 && minutes < 21) {
         advanceFacilitator();
-        setNextMeetingDate(getNextMeetingDateTime());
       }
     }, 10000);
 
@@ -284,7 +318,7 @@ export default function Home() {
       clearInterval(generalInterval);
       clearInterval(preciseInterval);
     };
-  }, [getNextMeetingDateTime]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
@@ -425,18 +459,23 @@ export default function Home() {
               </div>
               
               <div className="text-center p-4 bg-cyan-900/20 rounded-xl border border-cyan-500/30">
-                <div className="text-lg font-bold text-cyan-100 mb-2">{nextMeetingDate}</div>
+                <div className="text-lg font-bold text-cyan-100 mb-2">{getMeetingStatus().status}</div>
                 <div className="text-cyan-400/80 text-sm mb-4">Tuesday & Thursday @ {formatMeetingTime()}</div>
-                {meetingLink && (
+                {meetingLink && getMeetingStatus().showButton && (
                   <a 
                     href={meetingLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-cyan-600/80 hover:bg-cyan-500 rounded-lg text-cyan-100 hover:text-white transition-all"
+                    className="inline-flex items-center space-x-2 px-4 py-2 bg-cyan-600/80 hover:bg-cyan-500 rounded-lg text-cyan-100 hover:text-white transition-all animate-pulse"
                   >
                     <span>🔗</span>
                     <span>Join Meeting</span>
                   </a>
+                )}
+                {!getMeetingStatus().showButton && meetingLink && (
+                  <div className="text-cyan-400/60 text-sm">
+                    Meeting link will appear 2 minutes before session
+                  </div>
                 )}
               </div>
             </div>
