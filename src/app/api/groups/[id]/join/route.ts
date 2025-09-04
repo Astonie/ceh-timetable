@@ -6,10 +6,11 @@ const prisma = new PrismaClient();
 // POST /api/groups/[id]/join - Join a study group
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const groupId = parseInt(params.id);
+    const { id } = await params;
+    const groupId = parseInt(id);
     const { userId } = await req.json();
 
     if (isNaN(groupId) || !userId) {
@@ -86,10 +87,11 @@ export async function POST(
 // DELETE /api/groups/[id]/leave - Leave a study group
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const groupId = parseInt(params.id);
+    const { id } = await params;
+    const groupId = parseInt(id);
     const { userId } = await req.json();
 
     if (isNaN(groupId) || !userId) {
