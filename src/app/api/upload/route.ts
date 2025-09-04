@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
-import { v4 as uuidv4 } from 'uuid';
 
 // Maximum file size (5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -24,23 +22,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit` }, { status: 400 });
     }
 
-    // Convert file to buffer
+    // Convert file to base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-
-    // Create unique filename to prevent overwrites
-    const uniqueId = uuidv4();
-    const filename = `${uniqueId}-${file.name.replace(/\s+/g, '_')}`;
-
-    // Upload to Vercel Blob Storage
-    const blob = await put(filename, buffer, {
-      access: 'public',
-      contentType: 'application/pdf',
-    });
+    const base64Data = buffer.toString('base64');
+    const dataUrl = `data:application/pdf;base64,${base64Data}`;
 
     return NextResponse.json({
       success: true,
-      fileUrl: blob.url,
+      fileUrl: dataUrl,
       filename: file.name,
       size: file.size
     }, { status: 200 });
