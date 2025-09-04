@@ -464,6 +464,8 @@ export default function Home() {
               <div className="text-center p-4 bg-cyan-900/20 rounded-xl border border-cyan-500/30">
                 <div className="text-lg font-bold text-cyan-100 mb-2">{getMeetingStatus().status}</div>
                 <div className="text-cyan-400/80 text-sm mb-4">Tuesday & Thursday @ {formatMeetingTime()}</div>
+                {/* Temporary debug info */}
+                <div className="text-xs text-yellow-400 mb-2">Debug: Link = {meetingLink || 'Not set'}</div>
                 {meetingLink && getMeetingStatus().showButton && (
                   <a 
                     href={meetingLink}
