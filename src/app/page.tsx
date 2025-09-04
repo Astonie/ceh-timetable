@@ -285,7 +285,10 @@ export default function Home() {
       const hours = catTime.getHours();
       const minutes = catTime.getMinutes();
       
-      setShowFacilitatorName((day === 2 || day === 4) && hours === 19 && minutes < 20);
+      // Update facilitator display based on meeting status
+      const meetingStatus = getMeetingStatus();
+      setShowFacilitatorName(meetingStatus.showButton);
+      
       if ((day === 2 || day === 4) && hours === 19 && minutes >= 20 && minutes < 21) {
         advanceFacilitator();
       }
@@ -318,7 +321,7 @@ export default function Home() {
       clearInterval(generalInterval);
       clearInterval(preciseInterval);
     };
-  }, []);
+  }, [getMeetingStatus]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
