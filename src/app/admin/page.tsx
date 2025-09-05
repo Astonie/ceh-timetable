@@ -32,11 +32,11 @@ type Resource = {
 function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-slate-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 min-w-[400px] max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
+      <div className="bg-slate-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 w-full max-w-sm sm:max-w-2xl sm:min-w-[400px] relative max-h-[90vh] overflow-y-auto">
         <button 
           onClick={onClose} 
-          className="absolute top-4 right-4 w-10 h-10 bg-slate-800/50 hover:bg-red-600/20 border border-slate-600 hover:border-red-500/50 rounded-xl text-slate-400 hover:text-red-400 text-xl font-bold transition-all z-10 flex items-center justify-center"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 hover:bg-red-600/20 border border-slate-600 hover:border-red-500/50 rounded-xl text-slate-400 hover:text-red-400 text-lg sm:text-xl font-bold transition-all z-10 flex items-center justify-center"
         >
           ×
         </button>
@@ -91,6 +91,7 @@ export default function AdminPage() {
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [editingSetting, setEditingSetting] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Check authentication on component mount
   useEffect(() => {
@@ -494,8 +495,20 @@ export default function AdminPage() {
         <div className="absolute top-20 left-40 w-full h-full animate-pulse"></div>
       </div>
 
-      {/* Enhanced Cyberpunk Sidebar - Made Sticky */}
-      <aside className="w-80 bg-slate-950/60 backdrop-blur-xl border-r border-green-500/30 flex flex-col py-8 px-6 shadow-2xl fixed top-0 left-0 h-screen z-40 overflow-y-auto">
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Enhanced Cyberpunk Sidebar - Made Responsive */}
+      <aside className={`
+        w-80 bg-slate-950/60 backdrop-blur-xl border-r border-green-500/30 flex flex-col py-4 sm:py-8 px-3 sm:px-6 shadow-2xl z-40 overflow-y-auto
+        fixed top-0 left-0 h-screen transition-transform duration-300 ease-in-out
+        lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Glitch lines */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
@@ -552,8 +565,11 @@ export default function AdminPage() {
         {/* Hacker Navigation */}
         <nav className="flex flex-col gap-3 mb-8">
           <button 
-            onClick={() => setActiveSection('facilitators')} 
-            className={`group flex items-center gap-4 px-5 py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
+            onClick={() => {
+              setActiveSection('facilitators');
+              setIsMobileMenuOpen(false);
+            }} 
+            className={`group flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
               activeSection === 'facilitators' 
                 ? 'bg-gradient-to-r from-green-600/80 to-green-500/80 text-black shadow-xl border border-green-400/70 shadow-green-500/20' 
                 : 'text-green-300 hover:bg-green-900/30 hover:text-green-100 border border-green-700/30 hover:border-green-500/50'
@@ -573,17 +589,20 @@ export default function AdminPage() {
           </button>
           
           <button 
-            onClick={() => setActiveSection('timetable')} 
-            className={`group flex items-center gap-4 px-5 py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
+            onClick={() => {
+              setActiveSection('timetable');
+              setIsMobileMenuOpen(false);
+            }} 
+            className={`group flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
               activeSection === 'timetable' 
                 ? 'bg-gradient-to-r from-cyan-600/80 to-cyan-500/80 text-black shadow-xl border border-cyan-400/70 shadow-cyan-500/20' 
                 : 'text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100 border border-cyan-700/30 hover:border-cyan-500/50'
             }`}
           >
             {activeSection === 'timetable' && <div className="absolute inset-0 bg-cyan-400/10 animate-pulse"></div>}
-            <span className="text-2xl filter drop-shadow-lg">⚡</span>
+            <span className="text-xl sm:text-2xl filter drop-shadow-lg">⚡</span>
             <div className="relative z-10">
-              <div className="text-base font-black tracking-wide">MISSIONS</div>
+              <div className="text-sm sm:text-base font-black tracking-wide">MISSIONS</div>
               <div className={`text-xs font-mono ${activeSection === 'timetable' ? 'text-cyan-900' : 'text-cyan-400/80'}`}>
                 {'// schedule_operations'}
               </div>
@@ -696,14 +715,24 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* Main Content with Cyberpunk Enhancement - Adjusted for fixed sidebar */}
-      <main className="flex-1 bg-gradient-to-br from-slate-950 via-green-950/10 to-slate-900 min-h-screen ml-80">
-        {/* Enhanced Cyberpunk Top Bar - Made Sticky */}
-        <div className="fixed top-0 left-80 right-0 z-30 bg-slate-950/90 backdrop-blur-xl border-b border-green-500/30 shadow-2xl overflow-hidden">
+      {/* Main Content with Cyberpunk Enhancement - Made Responsive */}
+      <main className="flex-1 bg-gradient-to-br from-slate-950 via-green-950/10 to-slate-900 min-h-screen lg:ml-80 transition-all duration-300">
+        {/* Enhanced Cyberpunk Top Bar - Made Responsive */}
+        <div className="fixed top-0 left-0 lg:left-80 right-0 z-30 bg-slate-950/90 backdrop-blur-xl border-b border-green-500/30 shadow-2xl overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-cyan-400/5 animate-pulse"></div>
-          <div className="px-8 py-6 flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-6">
-              <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-cyan-300 to-green-300 drop-shadow-lg font-mono tracking-wide">
+          <div className="px-3 sm:px-8 py-4 sm:py-6 flex items-center justify-between relative z-10">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 text-green-300 hover:text-green-100 hover:bg-green-900/30 rounded-lg transition-all mr-3"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
+            <div className="flex items-center gap-3 sm:gap-6">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-cyan-300 to-green-300 drop-shadow-lg font-mono tracking-wide">
                 {'<CEH_TERMINAL/>'}
               </h1>
               <div className="hidden md:flex items-center gap-2">
@@ -713,27 +742,28 @@ export default function AdminPage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="px-4 py-2 bg-gradient-to-r from-green-600/40 to-cyan-600/40 border border-green-500/40 rounded-xl backdrop-blur-sm shadow-lg relative overflow-hidden">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="px-3 py-2 sm:px-4 sm:py-2 bg-gradient-to-r from-green-600/40 to-cyan-600/40 border border-green-500/40 rounded-xl backdrop-blur-sm shadow-lg relative overflow-hidden">
                 <div className="absolute inset-0 bg-green-400/10 animate-pulse"></div>
                 <div className="flex items-center gap-2 relative z-10">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
-                  <span className="text-green-200 font-bold text-sm font-mono">
+                  <span className="text-green-200 font-bold text-xs sm:text-sm font-mono">
                     {activeSection === 'facilitators' ? '[OPERATORS_MODE]' : 
-                     activeSection === 'timetable' ? '[MISSIONS_MODE]' : '[SETTINGS_MODE]'}
+                     activeSection === 'timetable' ? '[MISSIONS_MODE]' : 
+                     activeSection === 'settings' ? '[CONFIG_MODE]' : '[RESOURCES_MODE]'}
                   </span>
                 </div>
               </div>
               
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden">
-                <span className="text-black font-black text-lg">🔒</span>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden">
+                <span className="text-black font-black text-base sm:text-lg">🔒</span>
                 <div className="absolute inset-0 bg-green-400/20 animate-ping"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="p-8 md:p-12 relative pt-24">
+        <div className="p-4 sm:p-8 md:p-12 relative pt-20 sm:pt-24">
           {/* ASCII Art Header */}
           <div className="mb-8 p-4 bg-slate-950/80 border border-green-500/30 rounded-2xl font-mono text-green-400 text-xs overflow-x-auto">
             <pre className="whitespace-pre">
