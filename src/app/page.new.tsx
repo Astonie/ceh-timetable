@@ -365,35 +365,36 @@ export default function Home() {
 
       {/* Navigation Header */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-green-500/30">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-2xl">🛡️</span>
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-lg sm:text-2xl">🛡️</span>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
+            <div className="hidden xs:block sm:block">
+              <h1 className="text-base sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
                 CEH Terminal
               </h1>
               <p className="text-xs text-green-400 opacity-80">Ethical Hacker Study Group</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4">
             <button
               onClick={() => setShowJoinModal(true)}
-              className="px-4 py-2 bg-blue-600/80 hover:bg-blue-500 rounded-lg text-blue-100 hover:text-white transition-all font-medium text-sm"
+              className="px-2 py-1 sm:px-4 sm:py-2 bg-blue-600/80 hover:bg-blue-500 rounded-lg text-blue-100 hover:text-white transition-all font-medium text-xs sm:text-sm"
             >
-              Join Community
+              <span className="hidden sm:inline">Join Community</span>
+              <span className="sm:hidden">Join</span>
             </button>
             <button
               onClick={() => setShowInfo(true)}
-              className="p-2 text-green-300 hover:text-green-100 hover:bg-green-900/30 rounded-lg transition-all"
+              className="p-1 sm:p-2 text-green-300 hover:text-green-100 hover:bg-green-900/30 rounded-lg transition-all text-sm sm:text-base"
             >
               ℹ️
             </button>
             <a 
               href="/admin" 
-              className="px-4 py-2 bg-green-600/80 hover:bg-green-500 rounded-lg text-green-100 hover:text-white transition-all font-medium text-sm"
+              className="px-2 py-1 sm:px-4 sm:py-2 bg-green-600/80 hover:bg-green-500 rounded-lg text-green-100 hover:text-white transition-all font-medium text-xs sm:text-sm"
             >
               Admin
             </a>

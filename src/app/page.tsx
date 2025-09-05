@@ -365,35 +365,36 @@ export default function Home() {
 
       {/* Navigation Header */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-green-500/30">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-2xl">🛡️</span>
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-lg sm:text-2xl">🛡️</span>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
+            <div className="hidden xs:block sm:block">
+              <h1 className="text-base sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
                 CEH Terminal
               </h1>
               <p className="text-xs text-green-400 opacity-80">Ethical Hacker Study Group</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4">
             <button
               onClick={() => setShowJoinModal(true)}
-              className="px-4 py-2 bg-blue-600/80 hover:bg-blue-500 rounded-lg text-blue-100 hover:text-white transition-all font-medium text-sm"
+              className="px-2 py-1 sm:px-4 sm:py-2 bg-blue-600/80 hover:bg-blue-500 rounded-lg text-blue-100 hover:text-white transition-all font-medium text-xs sm:text-sm"
             >
-              Join Community
+              <span className="hidden sm:inline">Join Community</span>
+              <span className="sm:hidden">Join</span>
             </button>
             <button
               onClick={() => setShowInfo(true)}
-              className="p-2 text-green-300 hover:text-green-100 hover:bg-green-900/30 rounded-lg transition-all"
+              className="p-1 sm:p-2 text-green-300 hover:text-green-100 hover:bg-green-900/30 rounded-lg transition-all text-sm sm:text-base"
             >
               ℹ️
             </button>
             <a 
               href="/admin" 
-              className="px-4 py-2 bg-green-600/80 hover:bg-green-500 rounded-lg text-green-100 hover:text-white transition-all font-medium text-sm"
+              className="px-2 py-1 sm:px-4 sm:py-2 bg-green-600/80 hover:bg-green-500 rounded-lg text-green-100 hover:text-white transition-all font-medium text-xs sm:text-sm"
             >
               Admin
             </a>
@@ -402,23 +403,23 @@ export default function Home() {
       </nav>
 
       {/* Main Content */}
-      <main className="pt-20 pb-8">
+      <main className="pt-16 sm:pt-20 pb-6 sm:pb-8">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-12 text-center">
+        <section className="container mx-auto px-3 sm:px-4 py-6 sm:py-12 text-center">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-cyan-300 to-green-300 mb-6">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-cyan-300 to-green-300 mb-4 sm:mb-6 leading-tight">
               ETHICAL HACKER
             </h1>
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">
+            <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-6 sm:mb-8">
               Study Group Protocol
             </h2>
-            <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-lg text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
               Join our structured CEH v13 certification study program with automated facilitator rotation 
               and comprehensive session tracking.
             </p>
             
             {/* Status Indicators */}
-            <div className="flex justify-center items-center space-x-8 mb-8">
+            <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-8 mb-6 sm:mb-8">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-green-300 text-sm">System Online</span>
@@ -436,21 +437,21 @@ export default function Home() {
         </section>
 
         {/* Current Status Dashboard */}
-        <section className="container mx-auto px-4 mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <section className="container mx-auto px-3 sm:px-4 mb-8 sm:mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto">
             {/* Current Facilitator */}
-            <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-green-500/30">
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-cyan-600 rounded-xl flex items-center justify-center">
-                  <span className="text-2xl">👨‍💻</span>
+            <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-green-500/30">
+              <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                  <span className="text-lg sm:text-2xl">👨‍💻</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-green-300">Current Facilitator</h3>
-                  <p className="text-sm text-green-400/80">Session Leader</p>
+                  <h3 className="text-base sm:text-lg font-bold text-green-300">Current Facilitator</h3>
+                  <p className="text-xs sm:text-sm text-green-400/80">Session Leader</p>
                 </div>
               </div>
               
-              <div className="text-center p-4 bg-green-900/20 rounded-xl border border-green-500/30">
+              <div className="text-center p-3 sm:p-4 bg-green-900/20 rounded-xl border border-green-500/30">
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce"></div>
@@ -481,33 +482,34 @@ export default function Home() {
             </div>
 
             {/* Next Meeting */}
-            <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/30">
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
-                  <span className="text-2xl">📅</span>
+            <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-cyan-500/30">
+              <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <span className="text-lg sm:text-2xl">📅</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-cyan-300">Next Session</h3>
-                  <p className="text-sm text-cyan-400/80">Meeting Status</p>
+                  <h3 className="text-base sm:text-lg font-bold text-cyan-300">Next Session</h3>
+                  <p className="text-xs sm:text-sm text-cyan-400/80">Meeting Status</p>
                 </div>
               </div>
               
-              <div className="text-center p-4 bg-cyan-900/20 rounded-xl border border-cyan-500/30">
-                <div className="text-lg font-bold text-cyan-100 mb-2">{getMeetingStatus().status}</div>
-                <div className="text-cyan-400/80 text-sm mb-4">Tuesday & Thursday @ {formatMeetingTime()}</div>
+              <div className="text-center p-3 sm:p-4 bg-cyan-900/20 rounded-xl border border-cyan-500/30">
+                <div className="text-base sm:text-lg font-bold text-cyan-100 mb-2">{getMeetingStatus().status}</div>
+                <div className="text-cyan-400/80 text-xs sm:text-sm mb-3 sm:mb-4">Tuesday & Thursday @ {formatMeetingTime()}</div>
                 {meetingLink && getMeetingStatus().showButton && (
                   <a 
                     href={meetingLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-cyan-600/80 hover:bg-cyan-500 rounded-lg text-cyan-100 hover:text-white transition-all animate-pulse"
+                    className="inline-flex items-center space-x-2 px-3 py-2 sm:px-4 sm:py-2 bg-cyan-600/80 hover:bg-cyan-500 rounded-lg text-cyan-100 hover:text-white transition-all animate-pulse text-sm"
                   >
                     <span>🔗</span>
-                    <span>Join Meeting</span>
+                    <span className="hidden sm:inline">Join Meeting</span>
+                    <span className="sm:hidden">Join</span>
                   </a>
                 )}
                 {!getMeetingStatus().showButton && meetingLink && (
-                  <div className="text-cyan-400/60 text-sm">
+                  <div className="text-cyan-400/60 text-xs sm:text-sm px-2">
                     Meeting link will appear 2 minutes before session
                   </div>
                 )}
@@ -517,13 +519,13 @@ export default function Home() {
         </section>
 
         {/* Study Progress */}
-        <section className="container mx-auto px-4 mb-12">
+        <section className="container mx-auto px-3 sm:px-4 mb-8 sm:mb-12">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
               Study Progress
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Previous Week */}
               <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-red-500/30">
                 <div className="flex items-center space-x-3 mb-4">
