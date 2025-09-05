@@ -32,11 +32,11 @@ type Resource = {
 function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
-      <div className="bg-slate-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 w-full max-w-sm sm:max-w-2xl sm:min-w-[400px] relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-4 md:p-6">
+      <div className="bg-slate-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl border border-slate-700/50 w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl relative max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         <button 
           onClick={onClose} 
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 hover:bg-red-600/20 border border-slate-600 hover:border-red-500/50 rounded-xl text-slate-400 hover:text-red-400 text-lg sm:text-xl font-bold transition-all z-10 flex items-center justify-center"
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 lg:top-4 lg:right-4 w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-slate-800/50 hover:bg-red-600/20 border border-slate-600 hover:border-red-500/50 rounded-lg sm:rounded-xl text-slate-400 hover:text-red-400 text-base sm:text-lg lg:text-xl font-bold transition-all z-10 flex items-center justify-center"
         >
           ×
         </button>
@@ -952,20 +952,20 @@ export default function AdminPage() {
                                 </div>
                                 <p className="text-green-400/80 text-sm font-mono">ID:{String(f.id).padStart(4, '0')} | STATUS:ACTIVE | CLEARANCE:ADMIN</p>
                               </div>
-                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex gap-1 sm:gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => startEdit(f)}
-                                  className="p-3 text-amber-400 hover:text-amber-300 hover:bg-amber-900/30 rounded-lg transition-all border border-amber-600/30 hover:border-amber-400/50"
+                                  className="p-2 sm:p-3 text-amber-400 hover:text-amber-300 hover:bg-amber-900/30 rounded-lg transition-all border border-amber-600/30 hover:border-amber-400/50 touch-manipulation"
                                   title="Modify operator"
                                 >
-                                  <span className="text-lg">⚡</span>
+                                  <span className="text-base sm:text-lg">⚡</span>
                                 </button>
                                 <button
                                   onClick={() => deleteFacilitator(f.id)}
-                                  className="p-3 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition-all border border-red-600/30 hover:border-red-400/50"
+                                  className="p-2 sm:p-3 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition-all border border-red-600/30 hover:border-red-400/50 touch-manipulation"
                                   title="Terminate access"
                                 >
-                                  <span className="text-lg">�</span>
+                                  <span className="text-base sm:text-lg">💀</span>
                                 </button>
                               </div>
                             </div>
@@ -1004,68 +1004,68 @@ export default function AdminPage() {
 
                 {/* Enhanced Modal */}
                 <Modal open={showAddModal || editingEntryId !== null} onClose={() => { setShowAddModal(false); cancelEditEntry(); }}>
-                  <div className="p-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 shadow-2xl">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                        <span className="text-2xl">📝</span>
+                  <div className="p-3 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl sm:rounded-2xl border border-purple-500/30 shadow-2xl">
+                    <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <span className="text-lg sm:text-xl lg:text-2xl">📝</span>
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold text-white">{editingEntryId ? 'Edit Schedule' : 'Add New Session'}</h3>
-                        <p className="text-slate-400">Manage CEH study session details</p>
+                        <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{editingEntryId ? 'Edit Schedule' : 'Add New Session'}</h3>
+                        <p className="text-xs sm:text-sm text-slate-400">Manage CEH study session details</p>
                       </div>
                     </div>
 
-                    <form onSubmit={editingEntryId ? updateTimetableEntry : addTimetableEntry} className="space-y-6">
+                    <form onSubmit={editingEntryId ? updateTimetableEntry : addTimetableEntry} className="space-y-3 sm:space-y-4 lg:space-y-6">
                       <div>
-                        <label className="block text-sm font-semibold text-purple-300 mb-2">Week Period</label>
+                        <label className="block text-xs sm:text-sm font-semibold text-purple-300 mb-1 sm:mb-2">Week Period</label>
                         <input
                           type="text"
                           name="week"
                           value={editingEntryId ? editEntry.week : newEntry.week}
                           onChange={editingEntryId ? (e) => setEditEntry({ ...editEntry, week: e.target.value }) : handleEntryInput}
                           placeholder="e.g., Week 1 (June 10–15)"
-                          className="w-full px-4 py-3 bg-slate-900/50 border border-purple-400/30 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                          className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-900/50 border border-purple-400/30 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                           required
                         />
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-semibold text-purple-300 mb-2">Session Title</label>
+                        <label className="block text-xs sm:text-sm font-semibold text-purple-300 mb-1 sm:mb-2">Session Title</label>
                         <input
                           type="text"
                           name="title"
                           value={editingEntryId ? editEntry.title : newEntry.title}
                           onChange={editingEntryId ? (e) => setEditEntry({ ...editEntry, title: e.target.value }) : handleEntryInput}
                           placeholder="e.g., Domain 1: Information Security Overview"
-                          className="w-full px-4 py-3 bg-slate-900/50 border border-purple-400/30 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                          className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-900/50 border border-purple-400/30 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                           required
                         />
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-semibold text-purple-300 mb-2">Session Details</label>
+                        <label className="block text-xs sm:text-sm font-semibold text-purple-300 mb-1 sm:mb-2">Session Details</label>
                         <textarea
                           name="details"
                           value={editingEntryId ? editEntry.details : newEntry.details}
                           onChange={editingEntryId ? (e) => setEditEntry({ ...editEntry, details: e.target.value }) : handleEntryInput}
                           placeholder="Enter details, one per line:&#10;Concepts: InfoSec fundamentals&#10;Tools: Terminology, hacker types&#10;Lab: Set up environment"
-                          className="w-full px-4 py-3 bg-slate-900/50 border border-purple-400/30 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                          className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-900/50 border border-purple-400/30 rounded-lg sm:rounded-xl text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
                           required
-                          rows={5}
+                          rows={4}
                         />
                       </div>
                       
-                      <div className="flex gap-3 pt-4">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4">
                         <button 
                           type="submit" 
-                          className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                          className="flex-1 px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm sm:text-base font-bold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                         >
                           {editingEntryId ? "💾 Save Changes" : "✨ Add Session"}
                         </button>
                         <button 
                           type="button" 
                           onClick={() => { setShowAddModal(false); cancelEditEntry(); }} 
-                          className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl transition-all"
+                          className="px-4 py-2 sm:px-6 sm:py-3 bg-slate-700 hover:bg-slate-600 text-white text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl transition-all"
                         >
                           Cancel
                         </button>
@@ -1136,20 +1136,20 @@ export default function AdminPage() {
                               </div>
                             </div>
                             
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                            <div className="flex gap-1 sm:gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                               <button
                                 onClick={() => { setEditingEntryId(entry.id); setEditEntry({ week: entry.week, title: entry.title, details: entry.details.join('\n') }); setShowAddModal(false); }}
-                                className="p-2 text-amber-400 hover:text-amber-300 hover:bg-amber-900/30 rounded-lg transition-all"
+                                className="p-1.5 sm:p-2 text-amber-400 hover:text-amber-300 hover:bg-amber-900/30 rounded-lg transition-all touch-manipulation"
                                 title="Edit session"
                               >
-                                <span className="text-lg">✏️</span>
+                                <span className="text-base sm:text-lg">✏️</span>
                               </button>
                               <button
                                 onClick={() => deleteTimetableEntry(entry.id)}
-                                className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition-all"
+                                className="p-1.5 sm:p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition-all touch-manipulation"
                                 title="Delete session"
                               >
-                                <span className="text-lg">🗑️</span>
+                                <span className="text-base sm:text-lg">🗑️</span>
                               </button>
                             </div>
                           </div>
@@ -1341,13 +1341,13 @@ export default function AdminPage() {
                             </div>
                           )}
                           
-                          <div className="flex justify-between items-center mt-3">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 gap-2 sm:gap-0">
                             <a 
                               href={resource.url || '#'} 
                               download={resource.type === 'uploaded-pdf' ? (resource.title ? `${resource.title}.pdf` : 'download.pdf') : undefined}
                               target={resource.type === 'uploaded-pdf' ? undefined : "_blank"}
                               rel={resource.type === 'uploaded-pdf' ? undefined : "noopener noreferrer"}
-                              className="text-amber-300 hover:text-amber-200 underline flex items-center"
+                              className="text-amber-300 hover:text-amber-200 underline flex items-center text-sm sm:text-base"
                             >
                               <span className="mr-1">
                                 {resource.type === 'uploaded-pdf' ? 'Download' : 'Preview'}
@@ -1355,7 +1355,7 @@ export default function AdminPage() {
                             </a>
                             <button 
                               onClick={() => deleteResource(resource.id)}
-                              className="text-red-400 hover:text-red-300 flex items-center"
+                              className="text-red-400 hover:text-red-300 flex items-center px-2 py-1 rounded-lg hover:bg-red-900/20 transition-all touch-manipulation text-sm sm:text-base"
                             >
                               <span className="mr-1">Delete</span> <span>×</span>
                             </button>
@@ -1370,17 +1370,17 @@ export default function AdminPage() {
 
             {/* Add Resource Modal */}
             <Modal open={showAddModal} onClose={() => setShowAddModal(false)}>
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-amber-300 mb-4">Add Study Material</h2>
-                <div className="space-y-4">
+              <div className="p-3 sm:p-4 lg:p-6">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-amber-300 mb-3 sm:mb-4">Add Study Material</h2>
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-amber-300 mb-1">
+                    <label htmlFor="title" className="block text-xs sm:text-sm font-medium text-amber-300 mb-1">
                       Title
                     </label>
                     <input
                       type="text"
                       id="title"
-                      className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                       placeholder="CEH v12 Study Guide"
                       value={newResource.title}
                       onChange={(e) => setNewResource({...newResource, title: e.target.value})}
@@ -1388,13 +1388,13 @@ export default function AdminPage() {
                   </div>
                   
                   <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-amber-300 mb-1">
+                    <label htmlFor="description" className="block text-xs sm:text-sm font-medium text-amber-300 mb-1">
                       Description (optional)
                     </label>
                     <textarea
                       id="description"
                       rows={3}
-                      className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                       placeholder="Official study guide with practice exams..."
                       value={newResource.description}
                       onChange={(e) => setNewResource({...newResource, description: e.target.value})}
@@ -1402,11 +1402,11 @@ export default function AdminPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-amber-300 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-amber-300 mb-1 sm:mb-2">
                       Resource Type
                     </label>
-                    <div className="flex space-x-4 flex-wrap">
-                      <label className="inline-flex items-center mb-2">
+                    <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+                      <label className="inline-flex items-center">
                         <input
                           type="radio"
                           className="form-radio text-amber-600"
@@ -1422,9 +1422,9 @@ export default function AdminPage() {
                             }
                           }}
                         />
-                        <span className="ml-2 text-amber-200">Upload PDF</span>
+                        <span className="ml-2 text-xs sm:text-sm text-amber-200">Upload PDF</span>
                       </label>
-                      <label className="inline-flex items-center mb-2">
+                      <label className="inline-flex items-center">
                         <input
                           type="radio"
                           className="form-radio text-amber-600"
@@ -1440,9 +1440,9 @@ export default function AdminPage() {
                             }
                           }}
                         />
-                        <span className="ml-2 text-amber-200">External PDF Link</span>
+                        <span className="ml-2 text-xs sm:text-sm text-amber-200">External PDF Link</span>
                       </label>
-                      <label className="inline-flex items-center mb-2">
+                      <label className="inline-flex items-center">
                         <input
                           type="radio"
                           className="form-radio text-amber-600"
@@ -1458,14 +1458,14 @@ export default function AdminPage() {
                             }
                           }}
                         />
-                        <span className="ml-2 text-amber-200">External Link</span>
+                        <span className="ml-2 text-xs sm:text-sm text-amber-200">External Link</span>
                       </label>
                     </div>
                   </div>
                   
                   {newResource.type === "uploaded-pdf" ? (
                     <div>
-                      <label htmlFor="fileUpload" className="block text-sm font-medium text-amber-300 mb-1">
+                      <label htmlFor="fileUpload" className="block text-xs sm:text-sm font-medium text-amber-300 mb-1">
                         PDF File (max 5MB)
                       </label>
                       <input
@@ -1473,28 +1473,28 @@ export default function AdminPage() {
                         id="fileUpload"
                         accept=".pdf"
                         ref={fileInputRef}
-                        className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                         onChange={handleFileChange}
                       />
                       {selectedFile && (
-                        <div className="mt-2 flex items-center gap-3">
+                        <div className="mt-2 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                           <button
                             onClick={handleUpload}
                             disabled={!selectedFile || uploadProgress > 0}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50"
+                            className="px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50"
                           >
                             {uploadProgress > 0 ? `Uploading... ${uploadProgress}%` : 'Upload PDF'}
                           </button>
-                          <span className="text-amber-400 text-sm">
+                          <span className="text-amber-400 text-xs sm:text-sm break-all">
                             {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
                           </span>
                         </div>
                       )}
                       {uploadProgress > 0 && uploadProgress < 100 && (
                         <div className="mt-2">
-                          <div className="w-full bg-gray-700 rounded-full h-2.5">
+                          <div className="w-full bg-gray-700 rounded-full h-2">
                             <div 
-                              className="bg-amber-500 h-2.5 rounded-full" 
+                              className="bg-amber-500 h-2 rounded-full transition-all duration-300" 
                               style={{ width: `${uploadProgress}%` }}
                             ></div>
                           </div>
@@ -1504,13 +1504,13 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     <div>
-                      <label htmlFor="url" className="block text-sm font-medium text-amber-300 mb-1">
+                      <label htmlFor="url" className="block text-xs sm:text-sm font-medium text-amber-300 mb-1">
                         URL
                       </label>
                       <input
                         type="text"
                         id="url"
-                        className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        className="w-full px-3 py-2 bg-black text-amber-200 border border-amber-700/50 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                         placeholder={newResource.type === "pdf" ? "https://example.com/ceh-guide.pdf" : "https://example.com/ceh-resources"}
                         value={newResource.url}
                         onChange={(e) => setNewResource({...newResource, url: e.target.value})}
@@ -1518,16 +1518,16 @@ export default function AdminPage() {
                     </div>
                   )}
                   
-                  <div className="flex justify-end space-x-3 pt-4">
+                  <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4">
                     <button
                       onClick={() => setShowAddModal(false)}
-                      className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                      className="px-4 py-2 bg-gray-800 text-gray-300 text-sm sm:text-base rounded-lg hover:bg-gray-700 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={addResource}
-                      className="px-4 py-2 bg-amber-600 text-amber-100 rounded-lg hover:bg-amber-500 transition-colors disabled:opacity-50"
+                      className="px-4 py-2 bg-amber-600 text-amber-100 text-sm sm:text-base rounded-lg hover:bg-amber-500 transition-colors disabled:opacity-50"
                       disabled={
                         !newResource.title || 
                         ((newResource.type === 'pdf' || newResource.type === 'link') && !newResource.url) ||
