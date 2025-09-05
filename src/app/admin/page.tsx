@@ -498,31 +498,31 @@ export default function AdminPage() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 lg:hidden"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* Enhanced Cyberpunk Sidebar - Made Responsive */}
+      {/* Enhanced Cyberpunk Sidebar - Mobile Responsive */}
       <aside className={`
-        w-80 bg-slate-950/60 backdrop-blur-xl border-r border-green-500/30 flex flex-col py-4 sm:py-8 px-3 sm:px-6 shadow-2xl z-40 overflow-y-auto
+        w-72 sm:w-80 bg-slate-950/95 backdrop-blur-xl border-r border-green-500/30 flex flex-col py-4 sm:py-8 px-3 sm:px-6 shadow-2xl z-50 overflow-y-auto
         fixed top-0 left-0 h-screen transition-transform duration-300 ease-in-out
-        lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
       `}>
         {/* Glitch lines */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
         
         {/* Hacker Logo/Brand Section */}
-        <div className="mb-10 p-6 bg-gradient-to-br from-green-900/30 via-slate-900/50 to-cyan-900/30 rounded-2xl border border-green-500/30 backdrop-blur-sm relative overflow-hidden">
+        <div className="mb-6 sm:mb-10 p-4 sm:p-6 bg-gradient-to-br from-green-900/30 via-slate-900/50 to-cyan-900/30 rounded-2xl border border-green-500/30 backdrop-blur-sm relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-cyan-400/5 animate-pulse"></div>
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg relative">
-              <span className="text-3xl font-bold text-black animate-pulse">🛡️</span>
+          <div className="flex items-center gap-3 sm:gap-4 relative z-10">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-400 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg relative">
+              <span className="text-2xl sm:text-3xl font-bold text-black animate-pulse">🛡️</span>
               <div className="absolute inset-0 bg-green-400/20 rounded-2xl animate-ping"></div>
             </div>
             <div>
-              <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300 glitch-text">
+              <h1 className="text-lg sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300 glitch-text">
                 C.E.H CONTROL
               </h1>
               <p className="text-xs text-green-400 mt-1 font-mono tracking-wider">
@@ -613,17 +613,20 @@ export default function AdminPage() {
           </button>
 
           <button 
-            onClick={() => setActiveSection('settings')} 
-            className={`group flex items-center gap-4 px-5 py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
+            onClick={() => {
+              setActiveSection('settings');
+              setIsMobileMenuOpen(false);
+            }} 
+            className={`group flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
               activeSection === 'settings' 
                 ? 'bg-gradient-to-r from-purple-600/80 to-purple-500/80 text-black shadow-xl border border-purple-400/70 shadow-purple-500/20' 
                 : 'text-purple-300 hover:bg-purple-900/30 hover:text-purple-100 border border-purple-700/30 hover:border-purple-500/50'
             }`}
           >
             {activeSection === 'settings' && <div className="absolute inset-0 bg-purple-400/10 animate-pulse"></div>}
-            <span className="text-2xl filter drop-shadow-lg">⚙️</span>
+            <span className="text-xl sm:text-2xl filter drop-shadow-lg">⚙️</span>
             <div className="relative z-10">
-              <div className="text-base font-black tracking-wide">SETTINGS</div>
+              <div className="text-sm sm:text-base font-black tracking-wide">SETTINGS</div>
               <div className={`text-xs font-mono ${activeSection === 'settings' ? 'text-purple-900' : 'text-purple-400/80'}`}>
                 {'// system_configuration'}
               </div>
@@ -634,17 +637,20 @@ export default function AdminPage() {
           </button>
           
           <button 
-            onClick={() => setActiveSection('resources')} 
-            className={`group flex items-center gap-4 px-5 py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
+            onClick={() => {
+              setActiveSection('resources');
+              setIsMobileMenuOpen(false);
+            }} 
+            className={`group flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 rounded-xl font-bold text-left transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden ${
               activeSection === 'resources' 
                 ? 'bg-gradient-to-r from-amber-600/80 to-amber-500/80 text-black shadow-xl border border-amber-400/70 shadow-amber-500/20' 
                 : 'text-amber-300 hover:bg-amber-900/30 hover:text-amber-100 border border-amber-700/30 hover:border-amber-500/50'
             }`}
           >
             {activeSection === 'resources' && <div className="absolute inset-0 bg-amber-400/10 animate-pulse"></div>}
-            <span className="text-2xl filter drop-shadow-lg">📚</span>
+            <span className="text-xl sm:text-2xl filter drop-shadow-lg">📚</span>
             <div className="relative z-10">
-              <div className="text-base font-black tracking-wide">RESOURCES</div>
+              <div className="text-sm sm:text-base font-black tracking-wide">RESOURCES</div>
               <div className={`text-xs font-mono ${activeSection === 'resources' ? 'text-amber-900' : 'text-amber-400/80'}`}>
                 {'// study_materials'}
               </div>
@@ -716,9 +722,9 @@ export default function AdminPage() {
       </aside>
 
       {/* Main Content with Cyberpunk Enhancement - Made Responsive */}
-      <main className="flex-1 bg-gradient-to-br from-slate-950 via-green-950/10 to-slate-900 min-h-screen lg:ml-80 transition-all duration-300">
+      <main className="flex-1 bg-gradient-to-br from-slate-950 via-green-950/10 to-slate-900 min-h-screen transition-all duration-300 lg:ml-72 xl:ml-80">
         {/* Enhanced Cyberpunk Top Bar - Made Responsive */}
-        <div className="fixed top-0 left-0 lg:left-80 right-0 z-30 bg-slate-950/90 backdrop-blur-xl border-b border-green-500/30 shadow-2xl overflow-hidden">
+        <div className="fixed top-0 left-0 right-0 lg:left-72 xl:left-80 z-30 bg-slate-950/90 backdrop-blur-xl border-b border-green-500/30 shadow-2xl overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-cyan-400/5 animate-pulse"></div>
           <div className="px-3 sm:px-8 py-4 sm:py-6 flex items-center justify-between relative z-10">
             {/* Mobile Menu Button */}
