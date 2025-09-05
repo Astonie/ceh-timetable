@@ -2,6 +2,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+// Helper to extract the first date in the week string
+function getStartDateFromWeek(weekStr: string): Date | null {
+  const match = weekStr.match(/\(([^–\)]+)[–\)]/);
+  if (!match) return null;
+  const dateStr = match[1].trim() + ' 2025';
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date;
+}
+
 type TimetableEntry = {
   id: number;
   week: string;
@@ -14,6 +23,8 @@ export default function SchedulePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openWeek, setOpenWeek] = useState<number | null>(null);
+  const [currentWeekIdx, setCurrentWeekIdx] = useState<number>(-1);
+  const [viewMode, setViewMode] = useState<'all' | 'current' | 'future'>('all');
 
   useEffect(() => {
     async function fetchTimetable() {
@@ -26,6 +37,28 @@ export default function SchedulePage() {
         
         if (Array.isArray(data)) {
           setTimetable(data);
+          
+          // Calculate current week index based on dates
+          const now = new Date();
+          let foundCurrentWeek = false;
+          
+          for (let i = 0; i < data.length; i++) {
+            const startDate = getStartDateFromWeek(data[i].week);
+            if (startDate) {
+              const endDate = new Date(startDate);
+              endDate.setDate(startDate.getDate() + 6);
+              
+              if (now >= startDate && now <= endDate) {
+                setCurrentWeekIdx(i);
+                foundCurrentWeek = true;
+                break;
+              }
+            }
+          }
+          
+          if (!foundCurrentWeek) {
+            setCurrentWeekIdx(-1);
+          }
         }
       } catch (e) {
         console.error("Fetch timetable error:", e);
@@ -74,14 +107,52 @@ export default function SchedulePage() {
             <p className="text-lg text-gray-300 mb-6">
               Complete CEH v13 Certification Timeline
             </p>
-            <div className="flex justify-center items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-green-300 text-sm">Current Week</span>
+            
+            {/* Filter Options */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  <span className="text-green-300 text-sm">Current Week</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <span className="text-gray-300 text-sm">Other Weeks</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-300 text-sm">Future Weeks</span>
+              
+              {/* View Mode Toggle */}
+              <div className="flex bg-black/40 rounded-xl p-1 border border-gray-700">
+                <button
+                  onClick={() => setViewMode('all')}
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+                    viewMode === 'all' 
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  All Weeks
+                </button>
+                <button
+                  onClick={() => setViewMode('current')}
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+                    viewMode === 'current' 
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Current
+                </button>
+                <button
+                  onClick={() => setViewMode('future')}
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+                    viewMode === 'future' 
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Future
+                </button>
               </div>
             </div>
           </div>
@@ -107,8 +178,16 @@ export default function SchedulePage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {timetable.map((week, idx) => {
-                const isCurrentWeek = idx === 0; // Simplified for now
+              {timetable
+                .map((week, idx) => ({ ...week, originalIndex: idx }))
+                .filter((week) => {
+                  if (viewMode === 'all') return true;
+                  if (viewMode === 'current') return week.originalIndex === currentWeekIdx;
+                  if (viewMode === 'future') return week.originalIndex > currentWeekIdx;
+                  return true;
+                })
+                .map((week) => {
+                const isCurrentWeek = week.originalIndex === currentWeekIdx;
                 
                 return (
                   <div 
@@ -119,7 +198,7 @@ export default function SchedulePage() {
                   >
                     <button
                       className="w-full flex items-center justify-between px-6 py-6 text-left focus:outline-none focus:ring-2 focus:ring-green-400 hover:bg-gray-800/30 transition-all"
-                      onClick={() => setOpenWeek(openWeek === idx ? null : idx)}
+                      onClick={() => setOpenWeek(openWeek === week.originalIndex ? null : week.originalIndex)}
                     >
                       <div className="flex items-center space-x-4 flex-1">
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0 ${
@@ -128,7 +207,7 @@ export default function SchedulePage() {
                             : 'bg-gradient-to-br from-gray-600 to-gray-700'
                         }`}>
                           <span className="text-white font-bold">
-                            {String(idx + 1).padStart(2, '0')}
+                            {String(week.originalIndex + 1).padStart(2, '0')}
                           </span>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -152,12 +231,12 @@ export default function SchedulePage() {
                         <span className={`text-2xl ${
                           isCurrentWeek ? 'text-green-400' : 'text-gray-400'
                         }`}>
-                          {openWeek === idx ? "−" : "+"}
+                          {openWeek === week.originalIndex ? "−" : "+"}
                         </span>
                       </div>
                     </button>
                     
-                    {openWeek === idx && (
+                    {openWeek === week.originalIndex && (
                       <div className="px-8 pb-6 bg-gray-900/30">
                         <div className="space-y-3">
                           {week.details.map((detail: string, i: number) => (
