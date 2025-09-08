@@ -1,31 +1,26 @@
 import { NextRequest } from 'next/server';
 
+// Create proper mock instances
+const mockTimetableEntryFindMany = jest.fn();
+const mockTimetableEntryCreate = jest.fn();
+const mockDisconnect = jest.fn();
+
 // Mock PrismaClient before importing the route
 jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn().mockImplementation(() => ({
     timetableEntry: {
-      findMany: jest.fn(),
-      create: jest.fn(),
+      findMany: mockTimetableEntryFindMany,
+      create: mockTimetableEntryCreate,
     },
-    $disconnect: jest.fn(),
+    $disconnect: mockDisconnect,
   })),
 }));
 
-import { PrismaClient } from '@prisma/client';
 import { GET, POST } from '../route';
 
-const mockPrisma = new PrismaClient();
-
 describe('/api/timetable', () => {
-  let mockTimetableEntryFindMany: jest.Mock;
-  let mockTimetableEntryCreate: jest.Mock;
-  let mockDisconnect: jest.Mock;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockTimetableEntryFindMany = mockPrisma.timetableEntry.findMany as jest.Mock;
-    mockTimetableEntryCreate = mockPrisma.timetableEntry.create as jest.Mock;
-    mockDisconnect = mockPrisma.$disconnect as jest.Mock;
   });
 
   describe('GET /api/timetable', () => {
@@ -37,7 +32,7 @@ describe('/api/timetable', () => {
           title: 'Introduction to CEH',
           details: ['Topic 1', 'Topic 2'],
           facilitatorId: 1,
-          createdAt: new Date(),
+          createdAt: new Date('2023-01-01').toISOString(),
           facilitator: {
             id: 1,
             name: 'John Doe',
@@ -50,7 +45,7 @@ describe('/api/timetable', () => {
           title: 'Network Security',
           details: ['Topic 3', 'Topic 4'],
           facilitatorId: null,
-          createdAt: new Date(),
+          createdAt: new Date('2023-01-02').toISOString(),
           facilitator: null
         }
       ];
@@ -79,7 +74,10 @@ describe('/api/timetable', () => {
       const result = await response.json();
 
       expect(response.status).toBe(500);
-      expect(result).toEqual({ error: 'Failed to fetch timetable entries' });
+      expect(result).toEqual({
+        error: 'Failed to fetch timetable entries',
+        details: errorMessage
+      });
       expect(mockDisconnect).toHaveBeenCalled();
     });
   });
@@ -96,7 +94,7 @@ describe('/api/timetable', () => {
       const createdEntry = {
         id: 1,
         ...entryData,
-        createdAt: new Date(),
+        createdAt: new Date('2023-01-03').toISOString(),
         facilitator: {
           id: 1,
           name: 'Jane Smith',
@@ -137,7 +135,7 @@ describe('/api/timetable', () => {
         id: 2,
         ...entryData,
         facilitatorId: null,
-        createdAt: new Date(),
+        createdAt: new Date('2023-01-04').toISOString(),
         facilitator: null
       };
 
@@ -254,7 +252,10 @@ describe('/api/timetable', () => {
       const result = await response.json();
 
       expect(response.status).toBe(500);
-      expect(result).toEqual({ error: 'Failed to create timetable entry' });
+      expect(result).toEqual({
+        error: 'Failed to create timetable entry',
+        details: 'Database error'
+      });
       expect(mockDisconnect).toHaveBeenCalled();
     });
   });

@@ -1,41 +1,51 @@
 import { NextRequest } from 'next/server';
 
 // Mock PrismaClient before importing the route
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn().mockImplementation(() => ({
-    studyGroup: {
-      findMany: jest.fn(),
-      create: jest.fn(),
-    },
-    user: {
-      findUnique: jest.fn(),
-    },
-    studyGroupMember: {
-      create: jest.fn(),
-    },
-    $disconnect: jest.fn(),
-  })),
-}));
+jest.mock('@prisma/client', () => {
+  // Create mock functions within the mock scope
+  const mockStudyGroupFindMany = jest.fn();
+  const mockStudyGroupCreate = jest.fn();
+  const mockUserFindUnique = jest.fn();
+  const mockStudyGroupMemberCreate = jest.fn();
+  const mockDisconnect = jest.fn();
 
-import { PrismaClient } from '@prisma/client';
+  return {
+    PrismaClient: jest.fn().mockImplementation(() => ({
+      studyGroup: {
+        findMany: mockStudyGroupFindMany,
+        create: mockStudyGroupCreate,
+      },
+      user: {
+        findUnique: mockUserFindUnique,
+      },
+      studyGroupMember: {
+        create: mockStudyGroupMemberCreate,
+      },
+      $disconnect: mockDisconnect,
+    })),
+    // Export mocks so they can be accessed in tests
+    mockStudyGroupFindMany,
+    mockStudyGroupCreate,
+    mockUserFindUnique,
+    mockStudyGroupMemberCreate,
+    mockDisconnect,
+  };
+});
+
+// Import the mocks from the mocked module
+const {
+  mockStudyGroupFindMany,
+  mockStudyGroupCreate,
+  mockUserFindUnique,
+  mockStudyGroupMemberCreate,
+  mockDisconnect,
+} = jest.requireMock('@prisma/client') as any;
+
 import { GET, POST } from '../route';
 
-const mockPrisma = new PrismaClient();
-
 describe('/api/groups', () => {
-  let mockStudyGroupFindMany: jest.Mock;
-  let mockStudyGroupCreate: jest.Mock;
-  let mockUserFindUnique: jest.Mock;
-  let mockStudyGroupMemberCreate: jest.Mock;
-  let mockDisconnect: jest.Mock;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockStudyGroupFindMany = mockPrisma.studyGroup.findMany as jest.Mock;
-    mockStudyGroupCreate = mockPrisma.studyGroup.create as jest.Mock;
-    mockUserFindUnique = mockPrisma.user.findUnique as jest.Mock;
-    mockStudyGroupMemberCreate = mockPrisma.studyGroupMember.create as jest.Mock;
-    mockDisconnect = mockPrisma.$disconnect as jest.Mock;
   });
 
   describe('GET /api/groups', () => {
@@ -48,7 +58,7 @@ describe('/api/groups', () => {
           ownerId: 1,
           isPublic: true,
           maxMembers: 10,
-          createdAt: new Date(),
+          createdAt: new Date('2023-01-01').toISOString(),
           owner: {
             id: 1,
             username: 'owner',
@@ -139,7 +149,7 @@ describe('/api/groups', () => {
         id: 1,
         ...groupData,
         isPublic: true,
-        createdAt: new Date(),
+        createdAt: new Date('2023-01-01').toISOString(),
         owner: mockOwner
       };
 
@@ -206,7 +216,7 @@ describe('/api/groups', () => {
         description: null,
         maxMembers: 10,
         isPublic: true,
-        createdAt: new Date(),
+        createdAt: new Date('2023-01-01').toISOString(),
         owner: mockOwner
       };
 

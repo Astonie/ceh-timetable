@@ -38,12 +38,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Generate email from name
-    const email = `${name.toLowerCase().replace(/\s+/g, '.')}@ceh.local`;
+    // Trim the name first, then generate email
+    const trimmedName = name.trim();
+    const email = `${trimmedName.toLowerCase().replace(/\s+/g, '.')}@ceh.local`;
 
     const facilitator = await prisma.facilitator.create({
       data: {
-        name: name.trim(),
+        name: trimmedName,
         email: email
       }
     });

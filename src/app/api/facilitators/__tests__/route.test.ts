@@ -1,31 +1,26 @@
 import { NextRequest } from 'next/server';
 
+// Create proper mock instances
+const mockFacilitatorFindMany = jest.fn();
+const mockFacilitatorCreate = jest.fn();
+const mockDisconnect = jest.fn();
+
 // Mock PrismaClient before importing the route
 jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn().mockImplementation(() => ({
     facilitator: {
-      findMany: jest.fn(),
-      create: jest.fn(),
+      findMany: mockFacilitatorFindMany,
+      create: mockFacilitatorCreate,
     },
-    $disconnect: jest.fn(),
+    $disconnect: mockDisconnect,
   })),
 }));
 
-import { PrismaClient } from '@prisma/client';
 import { GET, POST } from '../route';
 
-const mockPrisma = new PrismaClient();
-
 describe('/api/facilitators', () => {
-  let mockFacilitatorFindMany: jest.Mock;
-  let mockFacilitatorCreate: jest.Mock;
-  let mockDisconnect: jest.Mock;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFacilitatorFindMany = mockPrisma.facilitator.findMany as jest.Mock;
-    mockFacilitatorCreate = mockPrisma.facilitator.create as jest.Mock;
-    mockDisconnect = mockPrisma.$disconnect as jest.Mock;
   });
 
   describe('GET /api/facilitators', () => {
@@ -35,13 +30,13 @@ describe('/api/facilitators', () => {
           id: 1,
           name: 'John Doe',
           email: 'john.doe@ceh.local',
-          createdAt: new Date()
+          createdAt: new Date('2023-01-01').toISOString()
         },
         {
           id: 2,
           name: 'Jane Smith',
           email: 'jane.smith@ceh.local',
-          createdAt: new Date()
+          createdAt: new Date('2023-01-02').toISOString()
         }
       ];
 
@@ -84,7 +79,7 @@ describe('/api/facilitators', () => {
         id: 1,
         name: 'Bob Johnson',
         email: 'bob.johnson@ceh.local',
-        createdAt: new Date()
+        createdAt: new Date('2023-01-01').toISOString()
       };
 
       mockFacilitatorCreate.mockResolvedValue(createdFacilitator);
@@ -118,7 +113,7 @@ describe('/api/facilitators', () => {
         id: 2,
         name: 'Alice Mary Wilson',
         email: 'alice.mary.wilson@ceh.local',
-        createdAt: new Date()
+        createdAt: new Date('2023-01-02').toISOString()
       };
 
       mockFacilitatorCreate.mockResolvedValue(createdFacilitator);
@@ -152,7 +147,7 @@ describe('/api/facilitators', () => {
         id: 3,
         name: 'Charlie Brown',
         email: 'charlie.brown@ceh.local',
-        createdAt: new Date()
+        createdAt: new Date('2023-01-03').toISOString()
       };
 
       mockFacilitatorCreate.mockResolvedValue(createdFacilitator);

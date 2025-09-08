@@ -1,31 +1,26 @@
 import { NextRequest } from 'next/server';
 
+// Create proper mock instances
+const mockSettingFindMany = jest.fn();
+const mockSettingUpsert = jest.fn();
+const mockDisconnect = jest.fn();
+
 // Mock PrismaClient before importing the route
 jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn().mockImplementation(() => ({
     setting: {
-      findMany: jest.fn(),
-      upsert: jest.fn(),
+      findMany: mockSettingFindMany,
+      upsert: mockSettingUpsert,
     },
-    $disconnect: jest.fn(),
+    $disconnect: mockDisconnect,
   })),
 }));
 
-import { PrismaClient } from '@prisma/client';
 import { GET, POST } from '../route';
 
-const mockPrisma = new PrismaClient();
-
 describe('/api/settings', () => {
-  let mockSettingFindMany: jest.Mock;
-  let mockSettingUpsert: jest.Mock;
-  let mockDisconnect: jest.Mock;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSettingFindMany = mockPrisma.setting.findMany as jest.Mock;
-    mockSettingUpsert = mockPrisma.setting.upsert as jest.Mock;
-    mockDisconnect = mockPrisma.$disconnect as jest.Mock;
   });
 
   describe('GET /api/settings', () => {
@@ -36,14 +31,14 @@ describe('/api/settings', () => {
           key: 'theme',
           value: 'dark',
           description: 'Application theme setting',
-          updatedAt: new Date()
+          updatedAt: new Date('2023-01-01').toISOString()
         },
         {
           id: 2,
           key: 'notifications',
           value: 'enabled',
           description: 'Notification preferences',
-          updatedAt: new Date()
+          updatedAt: new Date('2023-01-02').toISOString()
         }
       ];
 
@@ -87,8 +82,8 @@ describe('/api/settings', () => {
       const createdSetting = {
         id: 1,
         ...settingData,
-        updatedAt: new Date(),
-        createdAt: new Date()
+        updatedAt: new Date('2023-01-01').toISOString(),
+        createdAt: new Date('2023-01-01').toISOString()
       };
 
       mockSettingUpsert.mockResolvedValue(createdSetting);
@@ -125,8 +120,8 @@ describe('/api/settings', () => {
       const updatedSetting = {
         id: 1,
         ...settingData,
-        updatedAt: new Date(),
-        createdAt: new Date()
+        updatedAt: new Date('2023-01-02').toISOString(),
+        createdAt: new Date('2023-01-01').toISOString()
       };
 
       mockSettingUpsert.mockResolvedValue(updatedSetting);
