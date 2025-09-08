@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # Main virtual lab environment
+  virtual-lab:
+    build: 
+      context: ./docker/virtual-lab
+      dockerfile: Dockerfile
+    container_name: ceh-virtual-lab
+    hostname: kali-lab
+    networks:
+      - lab-network
+    volumes:
+      - lab-workspace:/home/labuser/workspace
+      - ./lab-exercises:/labs/exercises:ro
+      - ./lab-results:/home/labuser/results
+    ports:
+      - "2222:22"    # SSH access
+      - "8080:8080"  # WebGoat
+      - "8081:80"    # DVWA
+    environment:
+      - LAB_SESSION_ID=${LAB_SESSION_ID:-default}
+      - LAB_USER_ID=${LAB_USER_ID:-1}
+    stdin_open: true
+    tty: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    security_opt:
+      - seccomp:unconfined
+
+  # Vulnerable web application targets
+  webgoat:
+    image: webgoat/webgoat:latest
+    container_name: webgoat-target
+    networks:
+      - lab-network
+    ports:
+      - "8080:8080"
+    environment:
+      - WEBGOAT_PORT=8080
+
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    container_name: dvwa-target
+    networks:
+      - lab-network
+    ports:
+      - "8081:80"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=password
+
+  # Metasploitable target
+  metasploitable:
+    image: tleemcjr/metasploitable2:latest
+    container_name: metasploitable-target
+    networks:
+      - lab-network
+    ports:
+      - "2223:22"
+      - "8082:80"
+      - "2121:21"
+      - "1433:1433"
+      - "3306:3306"
+
+  # Network scanning target
+  scanme:
+    image: ubuntu:20.04
+    container_name: scanme-target
+    hostname: scanme.local
+    networks:
+      - lab-network
+    ports:
+      - "2224:22"
+      - "8083:80"
+      - "2125:21"
+    command: |
+      bash -c "
+        apt-get update && 
+        apt-get install -y openssh-server apache2 vsftpd telnetd &&
+        service ssh start && 
+        service apache2 start &&
+        service vsftpd start &&
+        service openbsd-inetd start &&
+        tail -f /dev/null
+      "
+
+  # Lab session manager API
+  lab-manager:
+    build:
+      context: .
+      dockerfile: docker/lab-manager/Dockerfile
+    container_name: lab-session-manager
+    networks:
+      - lab-network
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - LAB_DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - lab-workspace:/shared/workspace
+    depends_on:
+      - virtual-lab
+
+networks:
+  lab-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  lab-workspace:
+    driver: local

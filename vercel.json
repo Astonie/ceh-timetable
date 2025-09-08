@@ -1,8 +1,32 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
   "functions": {
     "src/app/api/upload/route.ts": {
       "maxDuration": 30
+    },
+    "src/app/api/lab-sessions/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/lab-sessions/[sessionId]/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/labs/*/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/quizzes/*/route.ts": {
+      "maxDuration": 30
     }
-  }
+  },
+  "env": {
+    "SKIP_ENV_VALIDATION": "1"
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "regions": ["iad1"],
+  "outputDirectory": ".next"
 }

@@ -68,6 +68,7 @@ model User {
   quizAttempts QuizAttempt[]
   progress    UserProgress[]
   achievements UserAchievement[]
+  labSessions LabSession[]
 
   @@map("users")
 }
@@ -126,6 +127,7 @@ model VirtualLab {
   creator          Facilitator?       @relation(fields: [createdBy], references: [id])
   attempts         LabAttempt[]
   labQuizzes       LabQuiz[]          // Associated quizzes for this lab
+  labSessions      LabSession[]       // Active sessions for this lab
   
   @@map("virtual_labs")
 }
@@ -305,4 +307,23 @@ model UserAchievement {
   
   @@unique([userId, achievementId])
   @@map("user_achievements")
+}
+
+model LabSession {
+  id          String   @id
+  userId      Int
+  labId       Int
+  containerId String
+  status      String   // 'starting', 'running', 'stopped', 'error'
+  accessUrl   String
+  sshPort     Int
+  webPort     Int
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  lab         VirtualLab @relation(fields: [labId], references: [id])
+
+  @@map("lab_sessions")
 }
