@@ -1,16 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-interface LabAttempt {
-  id: number;
-  status: string;
-  score?: number;
-  completedAt?: string;
-  timeSpent?: number;
-}
 
 interface VirtualLab {
   id: number;
@@ -22,33 +13,35 @@ interface VirtualLab {
   instructions: string;
   objectives: string[];
   prerequisites: string[];
-  resources: Record<string, unknown>;
-  creator: {
-    name: string;
-  };
-  attempts: LabAttempt[];
-  _count: {
-    attempts: number;
-  };
+  resources?: Record<string, unknown>;
+  isActive: boolean;
+  weekReference?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const difficultyColors = {
-  beginner: 'bg-green-500/20 text-green-400 border-green-500/30',
-  intermediate: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  advanced: 'bg-red-500/20 text-red-400 border-red-500/30'
-};
+interface LabSession {
+  sessionId: string;
+  status: string;
+  accessUrl: string;
+  sshAccess: string;
+  sshPort: number;
+  webPort: number;
+  credentials: {
+    username: string;
+    password: string;
+  };
+  instructions: string;
+}
 
-export default function LabPage() {
-  const params = useParams();
-  const searchParams = useSearchParams();
+const LabDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const [lab, setLab] = useState<VirtualLab | null>(null);
+  const [labSession, setLabSession] = useState<LabSession | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentAttempt, setCurrentAttempt] = useState<LabAttempt | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [notes, setNotes] = useState('');
-  
-  const isDetailsView = searchParams.get('view') === 'details';
-  const userId = 1; // TODO: Get from auth context
+  const [launching, setLaunching] = useState(false);
+  const [error, setError] = useState('');
+
+  const resolvedParams = React.use(params);
 
   const fetchLab = useCallback(async () => {
     try {
