@@ -45,6 +45,27 @@ export async function POST(
       );
     }
 
+    // Check if responses already exist for this attempt (prevent duplicate submissions)
+    const existingResponses = await prisma.quizResponse.findMany({
+      where: { attemptId: parseInt(id) }
+    });
+
+    if (existingResponses.length > 0) {
+      // If responses exist but attempt is not completed, delete them and proceed
+      // This handles cases where submission failed partway through
+      if (!attempt.completedAt) {
+        console.log('Cleaning up partial responses for attempt:', id);
+        await prisma.quizResponse.deleteMany({
+          where: { attemptId: parseInt(id) }
+        });
+      } else {
+        return NextResponse.json(
+          { error: 'Quiz responses already submitted for this attempt' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Process responses and calculate score
     let correctAnswers = 0;
     let totalPoints = 0;
@@ -63,15 +84,20 @@ export async function POST(
         earnedPoints += pointsEarned;
       }
 
-      return prisma.quizResponse.create({
-        data: {
-          attemptId: parseInt(id),
-          questionId: response.questionId,
-          userAnswer: response.answer,
-          isCorrect,
-          pointsEarned
-        }
-      });
+      try {
+        return await prisma.quizResponse.create({
+          data: {
+            attemptId: parseInt(id),
+            questionId: response.questionId,
+            userAnswer: response.answer,
+            isCorrect,
+            pointsEarned
+          }
+        });
+      } catch (error) {
+        console.error('Error creating quiz response:', error);
+        return null;
+      }
     });
 
     // Create all responses

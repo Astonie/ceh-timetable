@@ -109,22 +109,40 @@ export default function VirtualLabsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-green-400 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* Navigation Header */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-green-500/30">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
             <Link href="/" className="text-cyan-400 hover:text-cyan-300 transition-colors">
               ← Back to Home
             </Link>
+            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-cyan-500 rounded-xl flex items-center justify-center">
+              <span className="text-xl">🧪</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
+                Virtual Labs
+              </h1>
+              <p className="text-xs text-green-400 opacity-80">Hands-on cybersecurity practice</p>
+            </div>
           </div>
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
-            🧪 Virtual Labs
-          </h1>
-          <p className="text-gray-300 text-lg">
-            Hands-on cybersecurity labs to practice your CEH skills
-          </p>
         </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="pt-20 pb-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-cyan-300 to-green-300 mb-6">
+                VIRTUAL LABS
+              </h1>
+              <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+                Practice your ethical hacking skills in safe, isolated environments with guided lab exercises.
+              </p>
+            </div>
 
         {/* Filters */}
         <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8">
@@ -279,7 +297,9 @@ export default function VirtualLabsPage() {
             </p>
           </div>
         )}
-      </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
