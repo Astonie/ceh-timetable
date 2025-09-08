@@ -8,7 +8,7 @@ interface Question {
   text: string;
   type: string;
   options: string[];
-  correctAnswer: number;
+  correctAnswer: string; // String index like "0", "1", "2" from database
   explanation?: string;
   points: number;
 }
@@ -46,9 +46,19 @@ export default function QuizDetailPage({ params }: { params: Promise<{ id: strin
     score: number;
     isPassed: boolean;
     correctAnswers: number;
-    totalQuestions: number;
+    totalQuestions?: number;
     timeSpent?: number;
-    userAnswers: Array<{ questionId: number; selectedOption: string; isCorrect: boolean; }>;
+    responses: Array<{
+      questionId: number;
+      userAnswer: string;
+      isCorrect: boolean;
+      question: {
+        id: number;
+        questionText: string;
+        correctAnswer: string;
+        explanation?: string;
+      };
+    }>;
     quiz: { title: string; passingScore: number; };
   } | null>(null);
   const [showExplanations, setShowExplanations] = useState(false);
@@ -61,7 +71,15 @@ export default function QuizDetailPage({ params }: { params: Promise<{ id: strin
     if (typeof window !== 'undefined' && !celebrationPlayed) {
       // Create audio context for celebration sound
       try {
-        const audioContext = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+        // Define the window interface extension
+        interface ExtendedWindow extends Window {
+          AudioContext?: typeof AudioContext;
+          webkitAudioContext?: typeof AudioContext;
+        }
+        const AudioContextClass = (window as ExtendedWindow).AudioContext || (window as ExtendedWindow).webkitAudioContext;
+        if (!AudioContextClass) return;
+        
+        const audioContext = new AudioContextClass();
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
@@ -105,7 +123,7 @@ export default function QuizDetailPage({ params }: { params: Promise<{ id: strin
             questionText: string;
             questionType: string;
             options: string | string[];
-            correctAnswer: string;
+            correctAnswer?: string; // Optional since not included when showAnswers=false
             explanation?: string;
             points: number;
           }) => ({
@@ -117,7 +135,7 @@ export default function QuizDetailPage({ params }: { params: Promise<{ id: strin
               : typeof question.options === 'string' 
                 ? JSON.parse(question.options)
                 : [],
-            correctAnswer: parseInt(question.correctAnswer),
+            correctAnswer: question.correctAnswer || '', // Keep as string or empty string
             explanation: question.explanation,
             points: question.points
           }));
@@ -408,8 +426,15 @@ export default function QuizDetailPage({ params }: { params: Promise<{ id: strin
                 </div>
 
                 {quiz.questions.map((question, index) => {
-                  const userAnswer = answers[question.id];
-                  const isCorrect = userAnswer === question.correctAnswer;
+                  // Find the user's response for this question from the API results
+                  const userResponse = results?.responses?.find(r => r.questionId === question.id);
+                  const userAnswer = userResponse ? parseInt(userResponse.userAnswer) : undefined;
+                  const isCorrect = userResponse?.isCorrect || false;
+                  
+                  // Get the correct answer index from the API response
+                  // The API response includes correctAnswer as a string index when showCorrectAnswers is true
+                  const correctAnswerFromAPI = userResponse?.question?.correctAnswer;
+                  const correctAnswerIndex = correctAnswerFromAPI ? parseInt(correctAnswerFromAPI) : -1;
                   
                   return (
                     <div key={question.id} className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl p-6 transform transition-all hover:scale-[1.01]">
@@ -433,13 +458,22 @@ export default function QuizDetailPage({ params }: { params: Promise<{ id: strin
                           
                           <div className="space-y-2 mb-6">
                             {Array.isArray(question.options) ? question.options.map((option, optionIndex) => {
+                              // Default styling
                               let bgColor = 'bg-slate-700/30 border-slate-600/50 text-slate-300';
                               let icon = '';
                               
-                              if (optionIndex === question.correctAnswer) {
+                              // SIMPLE LOGIC:
+                              // 1. If this option is the correct answer -> GREEN
+                              // 2. If this option is user's wrong answer -> RED
+                              // 3. Otherwise -> GRAY (default)
+                              
+                              const isCorrectOption = optionIndex === correctAnswerIndex;
+                              const isUserWrongAnswer = optionIndex === userAnswer && !isCorrectOption;
+                              
+                              if (isCorrectOption) {
                                 bgColor = 'bg-green-500/20 border-green-500/50 text-green-300';
                                 icon = '✅ ';
-                              } else if (optionIndex === userAnswer && optionIndex !== question.correctAnswer) {
+                              } else if (isUserWrongAnswer) {
                                 bgColor = 'bg-red-500/20 border-red-500/50 text-red-300';
                                 icon = '❌ ';
                               }

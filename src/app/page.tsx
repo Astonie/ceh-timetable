@@ -656,7 +656,7 @@ export default function Home() {
                 <p className="text-sm text-gray-400">Hands-on practice</p>
               </Link>
 
-              <a 
+              <Link 
                 href="/quizzes" 
                 className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-blue-500/30 hover:border-blue-400/50 transition-all group text-center"
               >
@@ -665,7 +665,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-lg font-bold text-blue-300 mb-2">Quizzes</h3>
                 <p className="text-sm text-gray-400">Test knowledge</p>
-              </a>
+              </Link>
 
               <a 
                 href="/resources" 
