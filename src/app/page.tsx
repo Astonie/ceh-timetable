@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import "./cyberpunk.css";
 import JoinModal from "../components/JoinModal";
 
@@ -627,12 +628,12 @@ export default function Home() {
 
         {/* Quick Actions */}
         <section className="container mx-auto px-4 mb-12">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300">
               Quick Access
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
               <a 
                 href="/schedule" 
                 className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-green-500/30 hover:border-green-400/50 transition-all group text-center"
@@ -640,19 +641,41 @@ export default function Home() {
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-cyan-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                   <span className="text-2xl">📅</span>
                 </div>
-                <h3 className="text-lg font-bold text-green-300 mb-2">Full Schedule</h3>
-                <p className="text-sm text-gray-400">View complete study timeline</p>
+                <h3 className="text-lg font-bold text-green-300 mb-2">Schedule</h3>
+                <p className="text-sm text-gray-400">Study timeline</p>
+              </a>
+
+              <Link 
+                href="/labs" 
+                className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/30 hover:border-cyan-400/50 transition-all group text-center"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <span className="text-2xl">🧪</span>
+                </div>
+                <h3 className="text-lg font-bold text-cyan-300 mb-2">Virtual Labs</h3>
+                <p className="text-sm text-gray-400">Hands-on practice</p>
+              </Link>
+
+              <a 
+                href="/quizzes" 
+                className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-blue-500/30 hover:border-blue-400/50 transition-all group text-center"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <span className="text-2xl">📝</span>
+                </div>
+                <h3 className="text-lg font-bold text-blue-300 mb-2">Quizzes</h3>
+                <p className="text-sm text-gray-400">Test knowledge</p>
               </a>
 
               <a 
                 href="/resources" 
-                className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/30 hover:border-cyan-400/50 transition-all group text-center"
+                className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-orange-500/30 hover:border-orange-400/50 transition-all group text-center"
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                   <span className="text-2xl">📚</span>
                 </div>
-                <h3 className="text-lg font-bold text-cyan-300 mb-2">Resources</h3>
-                <p className="text-sm text-gray-400">Study materials & tools</p>
+                <h3 className="text-lg font-bold text-orange-300 mb-2">Resources</h3>
+                <p className="text-sm text-gray-400">Study materials</p>
               </a>
 
               <a 
@@ -663,7 +686,7 @@ export default function Home() {
                   <span className="text-2xl">🏆</span>
                 </div>
                 <h3 className="text-lg font-bold text-yellow-300 mb-2">Leaderboard</h3>
-                <p className="text-sm text-gray-400">Track group progress</p>
+                <p className="text-sm text-gray-400">Track progress</p>
               </a>
 
               <a 

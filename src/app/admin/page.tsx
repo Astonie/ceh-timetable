@@ -81,7 +81,7 @@ export default function AdminPage() {
   const [ttLoading, setTtLoading] = useState(false);
   const [ttError, setTtError] = useState<string | null>(null);
   const [ttSuccess, setTtSuccess] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<'facilitators' | 'timetable' | 'settings' | 'resources'>("facilitators");
+  const [activeSection, setActiveSection] = useState<'facilitators' | 'timetable' | 'settings' | 'resources' | 'labs' | 'quizzes'>("facilitators");
   const [showAddModal, setShowAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 

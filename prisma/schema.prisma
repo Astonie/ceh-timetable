@@ -13,6 +13,8 @@ model Facilitator {
   email     String           @unique
   createdAt DateTime         @default(now())
   timetable TimetableEntry[]
+  virtualLabs VirtualLab[]
+  quizzes   Quiz[]
 }
 
 model TimetableEntry {
@@ -62,6 +64,10 @@ model User {
   // Relations
   memberships StudyGroupMember[]
   ownedGroups StudyGroup[]
+  labAttempts LabAttempt[]
+  quizAttempts QuizAttempt[]
+  progress    UserProgress[]
+  achievements UserAchievement[]
 
   @@map("users")
 }
@@ -96,4 +102,207 @@ model StudyGroupMember {
 
   @@unique([userId, groupId])
   @@map("study_group_members")
+}
+
+// Virtual Labs System
+model VirtualLab {
+  id               Int                @id @default(autoincrement())
+  title            String
+  description      String
+  difficulty       String             // 'beginner', 'intermediate', 'advanced'
+  category         String             // 'footprinting', 'scanning', 'enumeration', etc.
+  estimatedTime    Int                // in minutes
+  instructions     String             // Markdown formatted lab instructions
+  objectives       String[]           // Learning objectives
+  prerequisites    String[]           // Required knowledge/tools
+  resources        Json?              // Links, tools, VM requirements
+  isActive         Boolean            @default(true)
+  weekReference    String?            // Reference to TimetableEntry week
+  createdBy        Int?               // Facilitator who created it
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  // Relations
+  creator          Facilitator?       @relation(fields: [createdBy], references: [id])
+  attempts         LabAttempt[]
+  labQuizzes       LabQuiz[]          // Associated quizzes for this lab
+  
+  @@map("virtual_labs")
+}
+
+model LabAttempt {
+  id               Int                @id @default(autoincrement())
+  userId           Int
+  labId            Int
+  status           String             @default("not_started") // 'not_started', 'in_progress', 'completed', 'failed'
+  startedAt        DateTime?
+  completedAt      DateTime?
+  timeSpent        Int?               // in minutes
+  score            Float?             // percentage score if applicable
+  notes            String?            // User notes
+  feedback         String?            // Instructor feedback
+  screenshots      String[]           @default([]) // Base64 or file paths
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  // Relations
+  user             User               @relation(fields: [userId], references: [id])
+  lab              VirtualLab         @relation(fields: [labId], references: [id])
+  
+  @@unique([userId, labId])
+  @@map("lab_attempts")
+}
+
+// Quiz System
+model Quiz {
+  id               Int                @id @default(autoincrement())
+  title            String
+  description      String?
+  category         String             // 'domain_1', 'domain_2', etc. or 'general'
+  difficulty       String             @default("intermediate") // 'beginner', 'intermediate', 'advanced'
+  timeLimit        Int?               // in minutes, null for unlimited
+  passingScore     Float              @default(70.0) // percentage
+  maxAttempts      Int?               // null for unlimited
+  isActive         Boolean            @default(true)
+  isPublic         Boolean            @default(true)
+  randomizeQuestions Boolean          @default(true)
+  showCorrectAnswers Boolean          @default(false) // Show answers after completion
+  weekReference    String?            // Reference to TimetableEntry week
+  createdBy        Int?               // Facilitator who created it
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  // Relations
+  creator          Facilitator?       @relation(fields: [createdBy], references: [id])
+  questions        QuizQuestion[]
+  attempts         QuizAttempt[]
+  labQuizzes       LabQuiz[]          // If this quiz is part of a lab
+  
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id               Int                @id @default(autoincrement())
+  quizId           Int
+  questionText     String
+  questionType     String             @default("multiple_choice") // 'multiple_choice', 'true_false', 'text_input'
+  options          Json?              // For multiple choice questions
+  correctAnswer    String             // Correct answer or answer key
+  explanation      String?            // Explanation for the correct answer
+  points           Int                @default(1)
+  orderIndex       Int                @default(0)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  // Relations
+  quiz             Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  responses        QuizResponse[]
+  
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id               Int                @id @default(autoincrement())
+  userId           Int
+  quizId           Int
+  startedAt        DateTime           @default(now())
+  completedAt      DateTime?
+  score            Float?             // percentage score
+  totalQuestions   Int
+  correctAnswers   Int                @default(0)
+  timeSpent        Int?               // in minutes
+  isPassed         Boolean?           // null until completed
+  attemptNumber    Int                @default(1)
+  createdAt        DateTime           @default(now())
+
+  // Relations
+  user             User               @relation(fields: [userId], references: [id])
+  quiz             Quiz               @relation(fields: [quizId], references: [id])
+  responses        QuizResponse[]
+  
+  @@map("quiz_attempts")
+}
+
+model QuizResponse {
+  id               Int                @id @default(autoincrement())
+  attemptId        Int
+  questionId       Int
+  userAnswer       String
+  isCorrect        Boolean
+  pointsEarned     Int                @default(0)
+  createdAt        DateTime           @default(now())
+
+  // Relations
+  attempt          QuizAttempt        @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question         QuizQuestion       @relation(fields: [questionId], references: [id])
+  
+  @@unique([attemptId, questionId])
+  @@map("quiz_responses")
+}
+
+// Junction table for labs that have associated quizzes
+model LabQuiz {
+  id               Int                @id @default(autoincrement())
+  labId            Int
+  quizId           Int
+  isRequired       Boolean            @default(false) // Must pass quiz to complete lab
+  orderIndex       Int                @default(0)     // Order of quizzes in the lab
+  createdAt        DateTime           @default(now())
+
+  // Relations
+  lab              VirtualLab         @relation(fields: [labId], references: [id], onDelete: Cascade)
+  quiz             Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  @@unique([labId, quizId])
+  @@map("lab_quizzes")
+}
+
+// Progress tracking and gamification
+model UserProgress {
+  id               Int                @id @default(autoincrement())
+  userId           Int
+  category         String             // 'labs', 'quizzes', 'overall'
+  metric           String             // 'completed_labs', 'quiz_average', 'streak_days'
+  value            Float              // numeric value of the metric
+  lastUpdated      DateTime           @default(now())
+  weekReference    String?            // Track progress per week
+
+  // Relations
+  user             User               @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, category, metric])
+  @@map("user_progress")
+}
+
+// Achievements/Badges System
+model Achievement {
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String
+  category         String             // 'labs', 'quizzes', 'participation', 'streak'
+  icon             String?            // Icon identifier
+  criteria         Json               // Criteria for earning this achievement
+  points           Int                @default(10) // Points awarded
+  isActive         Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+
+  // Relations
+  userAchievements UserAchievement[]
+  
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id               Int                @id @default(autoincrement())
+  userId           Int
+  achievementId    Int
+  earnedAt         DateTime           @default(now())
+  progress         Float              @default(100.0) // Progress towards achievement (0-100)
+
+  // Relations
+  user             User               @relation(fields: [userId], references: [id])
+  achievement      Achievement        @relation(fields: [achievementId], references: [id])
+  
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
 }
