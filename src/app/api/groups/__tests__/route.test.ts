@@ -39,7 +39,13 @@ const {
   mockUserFindUnique,
   mockStudyGroupMemberCreate,
   mockDisconnect,
-} = jest.requireMock('@prisma/client') as any;
+} = jest.requireMock('@prisma/client') as {
+  mockStudyGroupFindMany: jest.Mock;
+  mockStudyGroupCreate: jest.Mock;
+  mockUserFindUnique: jest.Mock;
+  mockStudyGroupMemberCreate: jest.Mock;
+  mockDisconnect: jest.Mock;
+};
 
 import { GET, POST } from '../route';
 
